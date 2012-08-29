@@ -7,7 +7,7 @@ ZSH="$CONF/oh-my-zsh"
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
 if [ "$ZSH_THEME" = "" ]; then
-	ZSH_THEME="takashiyoshida"
+	ZSH_THEME="simple"
 fi
 
 # Example aliases
@@ -68,5 +68,8 @@ echo "Checked out the subversion folder for ${NETID} into ~/svn/cs225"
 #SETUP SSH
 if [ ! -f ~/.ssh/id_rsa ]; then
 	echo "Creating SSH Keys"
-	${DIR}/install-ssh-keys
+	${CONF}/install-ssh-keys
 fi
+
+#CREATE NETID FILE
+echo $NETID > ~/.netid
