@@ -2,7 +2,7 @@
 [[ $- != *i* ]] && return
 
 #GET THE CONFIG DIR
-export CONF="$(readlink -f $(dirname $(readlink -f $0))/../)"
+export CONF="$(readlink -f $(dirname $(readlink -f ~/.bashrc))/../)"
 
 #SOURCE USEFUL ALIAS OPTIONS
 source $CONF/base/useful
