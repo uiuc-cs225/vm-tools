@@ -1,0 +1,63 @@
+# Path to your oh-my-zsh configuration.
+export CONF="$(readlink -f $(dirname $(readlink -f ~/.bashrc))/../)"
+ZSH="$CONF/oh-my-zsh"
+
+# Set name of the theme to load.
+# Look in ~/.oh-my-zsh/themes/
+# Optionally, if you set this to "random", it'll load a random theme each
+# time that oh-my-zsh is loaded.
+ZSH_THEME="takashiyoshida"
+
+# Example aliases
+# alias zshconfig="mate ~/.zshrc"
+# alias ohmyzsh="mate ~/.oh-my-zsh"
+
+# Set to this to use case-sensitive completion
+CASE_SENSITIVE="true"
+
+# Comment this out to disable weekly auto-update checks
+DISABLE_AUTO_UPDATE="true"
+
+# Uncomment following line if you want to disable colors in ls
+# DISABLE_LS_COLORS="true"
+
+# Uncomment following line if you want to disable autosetting terminal title.
+# DISABLE_AUTO_TITLE="true"
+
+# Uncomment following line if you want red dots to be displayed while waiting for completion
+# COMPLETION_WAITING_DOTS="true"
+
+# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
+# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
+# Example format: plugins=(rails git textmate ruby lighthouse)
+plugins=(git archlinux svn screen extract encode64)
+
+source $ZSH/oh-my-zsh.sh
+
+# Customize to your needs...
+source $CONF/base/useful
+alias sudo="nocorrect sudo"
+
+# Check for Setup Performed
+if [ -f "$HOME/.netid" ]; then
+	exit 0;
+fi
+
+#ASK FOR NETID
+read -p "NETID: " NETID
+
+#DETERMINE SEMESTER
+MONTH="$(date +%m)"
+DAY="$(date +%d)"
+YEAR="$(date +%y)"
+SEM="su"
+if (( "$MONTH" < "5" || ("$MONTH" == "5" && "$DAY" < 20) ) )); then
+	SEM="sp"
+elif (( "$MONTH" >= "9" || ("$MONTH" == 8 && "$DAY" > 14) ) )); then
+	SEM="fa"
+fi
+
+#SETUP SUBVERSION
+mkdir $HOME/svn
+svn co "https://subversion.ews.illinois.edu/svn/${SEM}${YEAR}-cs225/${NETID}" "$HOME/svn/cs225"
+echo "Checked out the subversion folder for ${NETID} into ~/svn/cs225"

@@ -1,0 +1,109 @@
+#!/bin/sh
+#XTERM
+if [ "${TERM}" = "xterm" ]; then
+	export TERM=xterm-256color
+elif [ "${TERM}" = "rxvt-unicode-256color" ]; then
+	export TERM=xterm-256color
+	unset COLORTERM
+fi
+
+#UPDATE CMD
+SUDO=$(which sudo 2>/dev/null | grep -v "not found")
+if [ "$SUDO" != "" ]; then
+	SUDO="${SUDO} "
+fi
+UN="$(uname)"
+if [ "$UN" = "Linux" ]; then
+	ISSUE=$(cat /etc/issue)
+	if [ "$(echo "$ISSUE" | grep "Arch Linux")" != "" ]; then
+		if [ "$(which packer 2>/dev/null | grep -v "not found")" != "" ]; then
+			alias update='packer -Syu'
+			alias inst='packer -S'
+		else
+			alias update="$SUDO"'pacman -Syu'
+			alias inst="$SUDO"'sudo pacman -S'
+		fi
+		alias clean='if [ "$(pacman -Qqdt)" != "" ]; then; sudo pacman -Rns $(pacman -Qqdt); fi'
+	elif [ "$(echo "$ISSUE" | grep "Debian")" != "" ]; then
+		alias update="$SUDO"'apt-get update; '"$SUDO"'apt-get dist-upgrade'
+		alias inst="$SUDO"'apt-get install'
+	fi
+elif [ "$UN" = "FreeBSD" ]; then
+	if [ "$(which portmaster 2>/dev/null | grep -v "not found")" != "" ]; then
+		alias inst="$SUDO"'portmaster -yBd'
+		alias update="$SUDO"'portsnap fetch; '"$SUDO"'portsnap update; '"$SUDO"'portmaster -aByd'
+	else
+		alias update="$SUDO"'portsnap fetch; '"$SUDO"'portsnap update'
+	fi
+fi
+
+#Sprunge
+alias sprunge="curl -F 'sprunge=<-' http://sprunge.us"
+
+#ROOT
+alias root="${SUDO}su -"
+
+#SSH AUTH INIT
+SOCKFILE="${HOME}/.ssh/environment-${HOST}"
+if [ "$SSH_AUTH_SOCK" = "" ]; then
+	if [ -f "$SOCKFILE" ]; then
+		. "$SOCKFILE"
+		PID="$SSH_AGENT_PID"
+		if [ "$(uname | grep CYGWIN)" = "" ]; then
+			PID2="$(ps -U $USER | grep ssh-agent | grep -v grep | awk '{print $1}')"
+		else
+			PID2="$(ps | grep ssh-agent | grep -v grep | awk '{print $1}')"
+		fi
+		eval "PID2=($PID2)"
+		OPEN=0
+		for i in $PID2; do
+			if [ "$i" = "$PID" ]; then
+				echo "SSH Agent Already Running"
+				OPEN=1
+			fi
+		done
+		if [ "$OPEN" = "0" ]; then
+			rm "$SOCKFILE"
+		fi
+	fi
+	if [ ! -f $SOCKFILE ]; then
+		echo "$(ssh-agent | grep -v "echo")" > "$SOCKFILE"
+		. "$SOCKFILE"
+		ssh-add
+	fi
+fi
+
+#EMACS STUFF
+EMACS="$(which emacs 2>/dev/null | grep -v "not found")"
+if [ "$EMACS" != "" ]; then
+	RET=`${EMACS} --help 2> /dev/null | grep daemon`
+	if [ "${RET}" != "" ]; then
+		alias emacs="$(which emacsclient) -t"
+		PID="$(cat ~/.emacs.pid 2>/dev/null)"
+		if [ "$(uname | grep CYGWIN)" = "" ]; then
+			PID2="$(ps -U $USER | grep emacs | grep -v grep | awk '{print $1}')"
+		else
+			PID2="$(ps | grep emacs | grep -v grep | awk '{print $1}')"
+		fi
+		eval "PID2=($PID2)"
+		OPEN=0
+		for i in $PID2; do
+			if [ "$i" = "$PID" ]; then
+				echo "Emacs Already Running"
+				OPEN=1
+			fi
+		done
+		if [ "$OPEN" = "0" ]; then
+			echo "Starting the Emacs Daemon"
+			$EMACS --daemon >/dev/null 2>&1
+		fi
+	fi
+fi
+
+#FreeBSD Vars
+EDITOR="vim"
+export EDITOR
+PAGER="more"
+export PAGER
+BLOCKSIZE="K"
+export BLOCKSIZE

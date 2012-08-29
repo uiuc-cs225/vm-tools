@@ -1,0 +1,2 @@
+#GET NEW CONFIG STUFF
+$(dirname $(readlink -f ~/.zprofile))/update-git
