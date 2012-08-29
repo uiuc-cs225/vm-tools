@@ -1,5 +1,5 @@
 #GET NEW CONFIG STUFF
-$(dirname $(readlink -f ~/.bash_profile))/update-git
+$(dirname $(readlink -f $0))/update-git
 
 #OTHER STUFF
 [[ -f ~/.bashrc ]] && . ~/.bashrc
