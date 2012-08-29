@@ -54,9 +54,9 @@ MONTH="$(date +%m)"
 DAY="$(date +%d)"
 YEAR="$(date +%y)"
 SEM="su"
-if (( "$MONTH" < "5" || ("$MONTH" == "5" && "$DAY" < 20) )); then
+if (( $MONTH < 5 || ($MONTH == 5 && $DAY < 20) )); then
 	SEM="sp"
-elif (( "$MONTH" >= "9" || ("$MONTH" == 8 && "$DAY" > 14) )); then
+elif (( $MONTH >= 9 || ($MONTH == 8 && $DAY > 14) )); then
 	SEM="fa"
 fi
 
