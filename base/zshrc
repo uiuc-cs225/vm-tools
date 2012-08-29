@@ -6,7 +6,7 @@ ZSH="$CONF/oh-my-zsh"
 # Look in ~/.oh-my-zsh/themes/
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
-if [ ZSH_THEME = "" ]; then
+if [ "$ZSH_THEME" = "" ]; then
 	ZSH_THEME="takashiyoshida"
 fi
 
@@ -46,7 +46,8 @@ if [ -f "$HOME/.netid" ]; then
 fi
 
 #ASK FOR NETID
-read -p "NETID: " NETID
+echo -n "NETID: "
+read NETID
 
 #DETERMINE SEMESTER
 MONTH="$(date +%m)"
