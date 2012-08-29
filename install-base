@@ -39,19 +39,3 @@ if [ "$EMACS" != "" ]; then
 		ln -sv "${DIR}/base/emacs" "${HOME}/.emacs"
 	fi
 fi
-
-#SETUP ZSH IF POSSIBLE
-echo $SHELL | grep zsh >/dev/null 2>&1
-if [ "$?" != "0" ]; then
-	ZSH="$(which zsh 2>/dev/null | grep -v "not found")"
-	if [ "$ZSH" != "" ]; then
-		VER="$(${ZSH} --version | awk '{print $2}')"
-		VER="$(printf "4.3.9\n%s" "$VER" | sort -bt. -k1,1n -k2,2n -k3,3n -k4,4n -k5,5n | awk 'NR==1')"
-		cat /etc/issue 2>/dev/null | grep "Arch Linux" >/dev/null 2>&1 || uname | grep "FreeBSD" >/dev/null
-		if [ "$?" = "0" ]; then
-			if [ "$VER" = "4.3.9" ]; then
-				chsh -s "$ZSH" "$USER"
-			fi
-		fi
-	fi
-fi
