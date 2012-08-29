@@ -11,8 +11,15 @@ fi
 #INSTALL CONFIGS
 CONF="gvimrc vimrc bash_profile bashrc zshrc zprofile"
 for i in $CONF; do
-	rm -f ~/.$i.inc
-	ln -sv ${DIR}/base/$i ~/.$i.inc
+	rm -f ~/.$i
+	ln -sv ${DIR}/base/$i ~/.$i
+	if [ ! -f ~/.$i.local ]; then
+		if [ "$(echo $i | grep vim)" != "" ]; then
+			echo "\"YOUR MODIFICATIONS HERE" > ~/.$i.local
+		else
+			echo "#YOUR MODIFICATIONS HERE" > ~/.$i.local
+		fi
+	fi
 done
 
 #DETERMINE IF PRELUDE CAN BE USED
