@@ -48,9 +48,3 @@ if [ "$?" != "0" ]; then
 		fi
 	fi
 fi
-
-#SETUP SSH
-if [ ! -f ~/.ssh/id_rsa ]; then
-	echo "Creating SSH Keys"
-	${DIR}/install-ssh-keys
-fi

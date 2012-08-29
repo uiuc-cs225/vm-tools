@@ -61,3 +61,9 @@ fi
 mkdir $HOME/svn
 svn co "https://subversion.ews.illinois.edu/svn/${SEM}${YEAR}-cs225/${NETID}" "$HOME/svn/cs225"
 echo "Checked out the subversion folder for ${NETID} into ~/svn/cs225"
+
+#SETUP SSH
+if [ ! -f ~/.ssh/id_rsa ]; then
+	echo "Creating SSH Keys"
+	${DIR}/install-ssh-keys
+fi
