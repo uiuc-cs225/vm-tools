@@ -11,7 +11,7 @@ fi
 #INSTALL CONFIGS
 CONF="gvimrc vimrc bash_profile bashrc zshrc zprofile"
 for i in $CONF; do
-	rm -f ~/.$i
+	rm -f ~/.$i.inc
 	ln -sv ${DIR}/base/$i ~/.$i.inc
 done
 
