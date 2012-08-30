@@ -21,6 +21,9 @@ for i in $CONF; do
 		fi
 	fi
 done
+if [ ! -f ~/.zsh.theme ]; then
+	echo "ZSH_THEME=\"simple\"" > ~/.zsh.theme
+fi
 
 #DETERMINE IF PRELUDE CAN BE USED
 EMACS="$(which emacs 2>/dev/null | grep -v "not found")"
