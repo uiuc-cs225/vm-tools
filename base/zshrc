@@ -49,6 +49,11 @@ fi
 echo -n "NETID: "
 read NETID
 
+echo -n "AD Password: "
+stty -echo
+read PASS
+stty echo
+
 #DETERMINE SEMESTER
 MONTH="$(date +%m)"
 DAY="$(date +%d)"
@@ -62,7 +67,7 @@ fi
 
 #SETUP SUBVERSION
 mkdir $HOME/svn
-svn co "https://subversion.ews.illinois.edu/svn/${SEM}${YEAR}-cs225/${NETID}" "$HOME/svn/cs225"
+svn co --username "$NETID" --password "$PASS" "https://subversion.ews.illinois.edu/svn/${SEM}${YEAR}-cs225/${NETID}" "$HOME/svn/cs225"
 echo "Checked out the subversion folder for ${NETID} into ~/svn/cs225"
 
 #SETUP SSH
