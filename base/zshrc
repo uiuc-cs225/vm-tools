@@ -98,6 +98,7 @@ fi
 echo -n "Would you like to add ssh keys to EWS for easy access from this vm? (y/N) "
 read KEYS
 if [[ "$KEYS" = "y" || "$KEYS" = "Y" ]]; then
+	sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no "${NETID}@remlnx.ews.illinois.edu" "if [ ! -d ~/.ssh ]; then mkdir ~/.ssh; fi; echo \"$(cat ~/.ssh/id_rsa.pub)\" >> ~/.ssh/authorized_keys;"
 fi
 
 #CREATE NETID FILE
