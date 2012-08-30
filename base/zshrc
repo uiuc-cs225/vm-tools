@@ -86,7 +86,7 @@ echo "Checked out the subversion folder for ${NETID} into ~/svn/cs225"
 #SETUP SSH
 if [ ! -f ~/.ssh/id_rsa ]; then
 	echo "Creating SSH Keys"
-	${CONF}/install-ssh-keys
+	${CONF}/install-ssh-keys >/dev/null 2>&1
 fi
 
 #CREATE NETID FILE
