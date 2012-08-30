@@ -89,11 +89,11 @@ RES="$(svn co --username "$NETID" --password "$PASS" "https://subversion.ews.ill
 RET="$?"
 if [ "$RET" != "0" ]; then
 	if [ "$(echo "$RES" | grep "authorization failed")" != "" ]; then
-		echo "Invalid Username or Password!"
+		echo 'Invalid Username or Password!'
 	elif [ "$(echo "$RES" | grep "Could not resolve hostname")" != "" ]; then
-		echo "Could not connect to EWS, Try Again? (Y/n)"
+		echo 'Could not connect to EWS, Try Again? (Y/n)'
 	else
-		echo "An unknown SVN error has occurred!"
+		echo 'An unknown SVN error has occurred!'
 	fi
 fi
 echo "Checked out the subversion folder for ${NETID} into ~/svn/cs225"
