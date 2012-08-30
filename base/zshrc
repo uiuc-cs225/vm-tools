@@ -69,10 +69,10 @@ fi
 
 #SETUP SUBVERSION
 mkdir $HOME/svn
-if [ -d $HOME/.subversion ]; then
+if [ ! -d $HOME/.subversion ]; then
 	mkdir $HOME/.subversion
 fi
-if [ -f $HOME/.subversion/servers ]; then
+if [ ! -f $HOME/.subversion/servers ]; then
 	cp $CONF/base/subversion_servers $HOME/.subversion/servers
 fi
 cat $HOME/.subversion/servers | grep -v "store-plaintext-passwords" > $HOME/.subversion/servers
