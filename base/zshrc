@@ -51,14 +51,7 @@ if [ -f "$HOME/.netid" ]; then
 	return 0;
 fi
 
-#ASK FOR NETID
-echo -n "NETID: "
-read NETID
-
-echo -n "AD Password: "
-stty -echo
-read PASS
-stty echo
+echo "CS 225 Virtual Environment Setup"
 echo ""
 
 #DETERMINE SEMESTER
@@ -84,18 +77,37 @@ if [ ! -f $HOME/.subversion/servers ]; then
 fi
 cat $HOME/.subversion/servers | grep -v "store-plaintext-passwords" > $HOME/.subversion/servers
 echo "store-plaintext-passwords = yes" >> $HOME/.subversion/servers
-echo "Downloading your CS 225 subversion folder..."
-RES="$(svn co --username "$NETID" --password "$PASS" "https://subversion.ews.illinois.edu/svn/${SEM}${YEAR}-cs225/${NETID}" "$HOME/svn/cs225" </dev/null 2>&1)"
-RET="$?"
-if [ "$RET" != "0" ]; then
-	if [ "$(echo "$RES" | grep "authorization failed")" != "" ]; then
-		echo 'Invalid Username or Password!'
-	elif [ "$(echo "$RES" | grep "Could not resolve hostname")" != "" ]; then
-		echo 'Could not connect to EWS, Try Again? (Y/n)'
-	else
-		echo 'An unknown SVN error has occurred!'
+
+ERROR=1000
+while [ $ERROR > 0 ]; do
+	if [ $ERROR > 999 ]; then
+		#ASK FOR INFO
+		echo -n "NETID: "
+		read NETID
+		echo -n "AD Password: "
+		stty -echo
+		read PASS
+		stty echo
+		echo ""
+		echo ""
 	fi
-fi
+	echo "Downloading your CS 225 subversion folder..."
+	RES="$(svn co --username "$NETID" --password "$PASS" "https://subversion.ews.illinois.edu/svn/${SEM}${YEAR}-cs225/${NETID}" "$HOME/svn/cs225" </dev/null 2>&1)"
+	RET="$?"
+	ERROR=0
+	if [ "$RET" != "0" ]; then
+		if [ "$(echo "$RES" | grep "authorization failed")" != "" ]; then
+			echo 'Invalid Username or Password!'
+			ERROR=1000
+		elif [ "$(echo "$RES" | grep "Could not resolve hostname")" != "" ]; then
+			ERROR=999
+			echo 'Could not connect to EWS, Try Again? (Y/n)'
+		else
+			echo 'An unknown SVN error has occurred!'
+			exit 1
+		fi
+	fi
+done
 echo "Checked out the subversion folder for ${NETID} into ~/svn/cs225"
 
 #SETUP SSH
