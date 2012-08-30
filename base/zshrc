@@ -41,6 +41,11 @@ source $ZSH/oh-my-zsh.sh
 source $CONF/base/useful
 alias sudo="nocorrect sudo"
 
+#CUSTOM ENHANCEMENTS
+if [ -f ~/.zshrc.local ]; then
+	. ~/.zshrc.local
+fi
+
 # Check for Setup Performed
 if [ -f "$HOME/.netid" ]; then
 	return 0;
@@ -87,6 +92,12 @@ echo "Checked out the subversion folder for ${NETID} into ~/svn/cs225"
 if [ ! -f ~/.ssh/id_rsa ]; then
 	echo "Creating SSH Keys"
 	${CONF}/install-ssh-keys >/dev/null 2>&1
+fi
+
+#ASK TO ADD SSH KEY TO EWS FOR EASY ACCESS
+echo -n "Would you like to add ssh keys to EWS for easy access from this vm? (y/N) "
+read KEYS
+if [[ "$KEYS" = "y" || "$KEYS" = "Y" ]]; then
 fi
 
 #CREATE NETID FILE

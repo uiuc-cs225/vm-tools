@@ -49,3 +49,8 @@ function prompt {
 	PS1="${LINE}${DR}[${R}${time}${DR}]\n${G}${END}\$${RES} "
 }
 PROMPT_COMMAND=prompt
+
+#CUSTOM ENHANCEMENTS
+if [ -f ~/.bashrc.local ]; then
+	. ~/.bashrc.local
+fi

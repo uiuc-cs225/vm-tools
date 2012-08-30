@@ -9,7 +9,7 @@ if [ "$1" != "1" ]; then
 fi
 
 #INSTALL CONFIGS
-CONF="gvimrc vimrc bash_profile bashrc zshrc zprofile"
+CONF="bash_profile bashrc zshrc zprofile"
 for i in $CONF; do
 	rm -f ~/.$i
 	ln -sv ${DIR}/base/$i ~/.$i
@@ -21,6 +21,8 @@ for i in $CONF; do
 		fi
 	fi
 done
+
+#INSTALL ZSH THEME FILE
 if [ ! -f ~/.zsh.theme ]; then
 	echo "ZSH_THEME=\"mh\"" > ~/.zsh.theme
 fi
