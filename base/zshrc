@@ -52,7 +52,6 @@ if [ -f "$HOME/.netid" ]; then
 fi
 
 echo "CS 225 Virtual Environment Setup"
-echo ""
 
 #DETERMINE SEMESTER
 MONTH="$(date +%m)"
@@ -80,6 +79,7 @@ echo "store-plaintext-passwords = yes" >> $HOME/.subversion/servers
 
 ERROR=1000
 while [ "$ERROR" -gt "0" ]; do
+	echo ""
 	if [ "$ERROR" -gt "999" ]; then
 		#ASK FOR INFO
 		echo -n "NETID: "
