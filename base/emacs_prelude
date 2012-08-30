@@ -10,4 +10,4 @@
               (delete-file pidfile))))
 (set-face-attribute 'default nil :height 100)
 
-(load "~/.emacs")
+(load "~/.emacs.local")

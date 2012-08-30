@@ -23,8 +23,8 @@ for i in $CONF; do
 done
 
 #INSTALL EMACS LOCAL CONF
-if [ ! -f $HOME/.emacs ]; then
-	touch $HOME/.emacs
+if [ ! -f $HOME/.emacs.local ]; then
+	touch $HOME/.emacs.local
 fi
 
 #INSTALL ZSH THEME FILE
