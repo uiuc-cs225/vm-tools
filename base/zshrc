@@ -79,8 +79,8 @@ cat $HOME/.subversion/servers | grep -v "store-plaintext-passwords" > $HOME/.sub
 echo "store-plaintext-passwords = yes" >> $HOME/.subversion/servers
 
 ERROR=1000
-while [ $ERROR > 0 ]; do
-	if [ $ERROR > 999 ]; then
+while [ "$ERROR" -gt "0" ]; do
+	if [ "$ERROR" -gt "999" ]; then
 		#ASK FOR INFO
 		echo -n "NETID: "
 		read NETID
@@ -100,8 +100,8 @@ while [ $ERROR > 0 ]; do
 			echo 'Invalid Username or Password!'
 			ERROR=1000
 		elif [ "$(echo "$RES" | grep "Could not resolve hostname")" != "" ]; then
-			ERROR=999
 			echo 'Could not connect to EWS, Try Again? (Y/n)'
+			ERROR=999
 		else
 			echo 'An unknown SVN error has occurred!'
 			exit 1
