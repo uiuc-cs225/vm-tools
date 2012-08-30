@@ -68,7 +68,9 @@ elif (( $MONTH >= 9 || ($MONTH == 8 && $DAY > 14) )); then
 fi
 
 #SETUP SUBVERSION
-mkdir $HOME/svn
+if [ ! -d $HOME/svn ]; then
+	mkdir $HOME/svn
+fi
 if [ ! -d $HOME/.subversion ]; then
 	mkdir $HOME/.subversion
 fi
