@@ -100,7 +100,7 @@ while [ "$ERROR" -gt "0" ]; do
 			echo 'Invalid Username or Password!'
 			ERROR=1000
 		elif [ "$(echo "$RES" | grep "Could not resolve hostname")" != "" ]; then
-			echo -n 'Could not connect to EWS, Try Again? (Y/n)'
+			echo -n 'Could not connect to EWS, Try Again? (Y/n) '
 			read AGAIN
 			if [[ "$AGAIN" = "n" || "$AGAIN" = "N" ]]; then
 				exit 1
