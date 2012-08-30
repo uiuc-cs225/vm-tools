@@ -8,7 +8,7 @@ ZSH="$CONF/oh-my-zsh"
 # time that oh-my-zsh is loaded.
 . $HOME/.zsh.theme
 if [ "$ZSH_THEME" = "" ]; then
-	ZSH_THEME="simple"
+	ZSH_THEME="mh"
 fi
 
 # Example aliases

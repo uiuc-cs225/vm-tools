@@ -22,7 +22,7 @@ for i in $CONF; do
 	fi
 done
 if [ ! -f ~/.zsh.theme ]; then
-	echo "ZSH_THEME=\"simple\"" > ~/.zsh.theme
+	echo "ZSH_THEME=\"mh\"" > ~/.zsh.theme
 fi
 
 #DETERMINE IF PRELUDE CAN BE USED
