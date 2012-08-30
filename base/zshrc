@@ -79,7 +79,8 @@ if [ ! -f $HOME/.subversion/servers ]; then
 fi
 cat $HOME/.subversion/servers | grep -v "store-plaintext-passwords" > $HOME/.subversion/servers
 echo "store-plaintext-passwords = yes" >> $HOME/.subversion/servers
-svn co --username "$NETID" --password "$PASS" "https://subversion.ews.illinois.edu/svn/${SEM}${YEAR}-cs225/${NETID}" "$HOME/svn/cs225"
+echo "Downloading your CS 225 subversion folder..."
+svn co --username "$NETID" --password "$PASS" "https://subversion.ews.illinois.edu/svn/${SEM}${YEAR}-cs225/${NETID}" "$HOME/svn/cs225" >/dev/null 2>&1
 echo "Checked out the subversion folder for ${NETID} into ~/svn/cs225"
 
 #SETUP SSH
