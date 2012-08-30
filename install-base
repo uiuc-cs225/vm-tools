@@ -22,6 +22,11 @@ for i in $CONF; do
 	fi
 done
 
+#INSTALL EMACS LOCAL CONF
+if [ ! -f $HOME/.emacs ]; then
+	touch $HOME/.emacs
+fi
+
 #INSTALL ZSH THEME FILE
 if [ ! -f ~/.zsh.theme ]; then
 	echo "ZSH_THEME=\"mh\"" > ~/.zsh.theme

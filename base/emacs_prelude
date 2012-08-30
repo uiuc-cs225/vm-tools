@@ -9,3 +9,5 @@
             (when (file-exists-p pidfile)
               (delete-file pidfile))))
 (set-face-attribute 'default nil :height 100)
+
+(load "~/.emacs")
