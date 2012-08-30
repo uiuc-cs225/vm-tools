@@ -5,6 +5,7 @@ if [ "${TERM}" = "xterm" ]; then
 elif [ "${TERM}" = "rxvt-unicode-256color" ]; then
 	export TERM=xterm-256color
 	unset COLORTERM
+fi
 
 #UPDATE CMD
 SUDO=$(which sudo 2>/dev/null | grep -v "not found")
@@ -104,3 +105,5 @@ export PAGER
 BLOCKSIZE="K"
 export BLOCKSIZE
 
+#EWS
+alias ews='if [ -f $HOME/.netid ]; then; ssh $(cat $HOME/.netid)@remlnx.ews.illinois.edu; fi;'
