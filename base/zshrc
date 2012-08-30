@@ -42,7 +42,7 @@ alias sudo="nocorrect sudo"
 
 # Check for Setup Performed
 if [ -f "$HOME/.netid" ]; then
-	exit 0;
+	return 0;
 fi
 
 #ASK FOR NETID
