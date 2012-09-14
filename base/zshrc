@@ -1,7 +1,7 @@
 # Path to your oh-my-zsh configuration.
 export CONF="$(readlink -f $(dirname $(readlink -f ~/.zshrc))/../)"
 ZSH="$CONF/oh-my-zsh"
-$CONF/bas/update-git
+$CONF/base/update-git
 
 # Set name of the theme to load.
 # Look in ~/.oh-my-zsh/themes/
