@@ -68,12 +68,9 @@ fi
 if [ ! -d $HOME/svn ]; then
 	mkdir $HOME/svn
 fi
-if [ ! -d $HOME/.subversion ]; then
-	mkdir $HOME/.subversion
-fi
-if [ ! -f $HOME/.subversion/servers ]; then
-	cp $CONF/base/subversion_servers $HOME/.subversion/servers
-fi
+rm -rf $HOME/.subversion
+mkdir $HOME/.subversion
+cp $CONF/base/subversion_servers $HOME/.subversion/servers
 cat $HOME/.subversion/servers | grep -v "store-plaintext-passwords" > $HOME/.subversion/servers
 echo "store-plaintext-passwords = yes" >> $HOME/.subversion/servers
 
@@ -109,6 +106,11 @@ while [ "$ERROR" -gt "0" ]; do
 			ERROR=999
 		else
 			echo 'An unknown SVN error has occurred!'
+			echo 'Please Post @ the CS 225 On Your Own Machine if you receive this error.'
+			echo 'Please hit enter to continue...'
+			stty -echo
+			read
+			stty echo
 			exit 1
 		fi
 	fi
