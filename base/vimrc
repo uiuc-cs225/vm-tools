@@ -102,4 +102,4 @@ endif
 
 set nomodeline
 
-source .vimrc.local
+source ~/.vimrc.local
