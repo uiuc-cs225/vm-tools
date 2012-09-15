@@ -67,7 +67,7 @@ cp -r "$CONF/sys/etc" "$DIR"
 cp -r "$CONF/sys/home" "$DIR/home/$USER"
 
 #Generate the Fstab
-genfstab "$DIR" >> "$DIR/etc/fstab"
+genfstab -U "$DIR" >> "$DIR/etc/fstab"
 
 #Install Grub
 echo "grub-install --boot-directory=/boot --recheck --no-floppy \"$DEV\"" >> "$DIR/setup"
