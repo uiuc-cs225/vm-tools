@@ -55,11 +55,49 @@ BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem fin
 DEVEL="base-devel libpng gnuplot imagemagick gdb valgrind"
 EDITORS="nano gvim emacs gedit"
 NET="wget ntp subversion git netcfg ifplugd iptables"
-SYS="sudo openssh lzop grub-bios zsh"
-X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit virtualbox-archlinux-modules virtualbox-archlinux-additions"
+SYS="sudo openssh lzop grub-bios zsh mlocate"
+X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit virtualbox-archlinux-modules virtualbox-archlinux-additions xf86-input-mouse xf86-input-keyboard"
 
 #Run Pacman to Install Packages
 pacstrap -c "$DIR" $BASE $DEVEL $EDITORS $NET $SYS $X11 --arch "$ARCH"
+
+#Copy configuration
+cp -r "$CONF/sys/etc" "$DIR"
+cp -r "$CONF/sys/home" "$DIR/home/$USER"
+
+#Generate the Fstab
+genfstab "$DIR" >> "$DIR/etc/fstab"
+
+#Install Grub
+echo "grub-install --boot-directory=/boot --recheck --no-floppy \"$DEV\"" >> "$DIR/setup"
+echo "grub-mkconfig -o /boot/grub/grub.cfg" >> "$DIR/setup"
+
+#Setup Locale
+echo "locale-gen" >> "$DIR/setup"
+
+#Build Initramfs
+echo "mkinitcpio -p linux" >> "$DIR/setup"
+
+#Setup Systemd Services
+echo "systemctl enable cronie.service" >> "$DIR/setup"
+echo "systemctl enable net-auto-wired.service" >> "$DIR/setup"
+echo "systemctl enable ntpd.service" >> "$DIR/setup"
+echo "systemctl enable slim.service" >> "$DIR/setup"
+echo "systemctl enable sshd.service" >> "$DIR/setup"
+
+#Add Default User
+echo "echo \"default_user $USER\" >> /etc/slim.conf" >> "$DIR/setup"
+echo "groupadd sshaccess" >> "$DIR/setup"
+echo "groupadd sudo" >> "$DIR/setup"
+echo "useradd -s /bin/zsh -G sshaccess,sudo $USER" >> "$DIR/setup"
+echo "chown $USER:users /home/$USER" >> "$DIR/setup"
+#echo "su -c \"\" $USER"
+#echo "su -c \"\" $USER"
+
+#Run the Setup Script
+arch-chroot "$DIR" "/bin/sh" "/setup"
+shred "$DIR/setup"
+rm "$DIR/setup"
 
 #Unmount the disks
 umount "$DIR/boot"
