@@ -101,3 +101,5 @@ if !exists(":DiffOrig")
 endif
 
 set nomodeline
+
+source .vimrc.local
