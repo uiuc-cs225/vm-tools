@@ -57,7 +57,7 @@ DEVEL="base-devel libpng gnuplot imagemagick gdb valgrind"
 EDITORS="nano gvim emacs gedit"
 NET="wget ntp subversion git netcfg ifplugd iptables"
 SYS="sudo openssh lzop grub-bios zsh mlocate"
-X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit virtualbox-archlinux-modules virtualbox-archlinux-additions xf86-input-mouse xf86-input-keyboard gnome-themes-standard"
+X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit virtualbox-archlinux-modules virtualbox-archlinux-additions xf86-input-mouse xf86-input-keyboard gnome-themes-standard ttf-dejavu ttf-liberation"
 
 #Run Pacman to Install Packages
 pacstrap -c "$DIR" $BASE $DEVEL $EDITORS $NET $SYS $X11 --arch "$ARCH" --config "$CONF/sys/pacman.conf"
