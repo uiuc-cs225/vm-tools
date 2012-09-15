@@ -21,7 +21,7 @@ DEV=$2
 if [ -b "/dev/$DEV" ]; then
 	DEV="/dev/$DEV"
 fi
-if [ ! -b "/dev/$DEV" ]; then
+if [ ! -b "$DEV" ]; then
 	echo "Invalid Block Device!"
 	exit 1
 fi
