@@ -1,5 +1,6 @@
 #!/bin/bash
 USER="cs225"
+NAME="CS 225"
 
 #Usage
 if [ "$#" != "2" ]; then
@@ -90,13 +91,16 @@ echo "echo \"default_user $USER\" >> /etc/slim.conf" >> "$DIR/setup"
 echo "groupadd sshaccess" >> "$DIR/setup"
 echo "groupadd sudo" >> "$DIR/setup"
 echo "useradd -s /bin/zsh -G sshaccess,sudo $USER" >> "$DIR/setup"
+echo "chfn -f \"$NAME\" $USER"
 echo "chown $USER:users /home/$USER" >> "$DIR/setup"
-#echo "su -c \"\" $USER"
-#echo "su -c \"\" $USER"
+REPO="$(git remote show -n origin | grep "Fetch URL" | awk '{print $3}')"
+echo "su -c \"git clone \\\"$REPO\\\" /home/$USER/.vmtools\" $USER" >> "$DIR/setup"
+echo "su -c \"/home/$USER/.vmtools/install-base\" $USER" >> "$DIR/setup"
 
 #Run the Setup Script
 arch-chroot "$DIR" "/bin/sh" "/setup"
 shred "$DIR/setup"
+
 rm "$DIR/setup"
 
 #Unmount the disks
