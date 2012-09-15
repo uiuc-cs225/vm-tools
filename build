@@ -86,13 +86,16 @@ echo "systemctl enable ntpd.service" >> "$DIR/setup"
 echo "systemctl enable slim.service" >> "$DIR/setup"
 echo "systemctl enable sshd.service" >> "$DIR/setup"
 
+#Setup Sudoers
+echo "echo \"%sudo ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers" >> "$DIR/setup"
+
 #Add Default User
 echo "echo \"default_user $USER\" >> /etc/slim.conf" >> "$DIR/setup"
 echo "groupadd sshaccess" >> "$DIR/setup"
 echo "groupadd sudo" >> "$DIR/setup"
 echo "useradd -s /bin/zsh -G sshaccess,sudo $USER" >> "$DIR/setup"
 echo "chfn -f \"$NAME\" $USER" >> "$DIR/setup"
-echo "chown $USER:users /home/$USER" >> "$DIR/setup"
+echo "chown -R $USER:users /home/$USER" >> "$DIR/setup"
 REPO="$(git remote show -n origin | grep "Fetch URL" | awk '{print $3}')"
 echo "su -c \"git clone \\\"$REPO\\\" /home/$USER/.vmtools\" $USER" >> "$DIR/setup"
 echo "su -c \"/home/$USER/.vmtools/install-base\" $USER" >> "$DIR/setup"
