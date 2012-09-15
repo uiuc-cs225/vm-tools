@@ -1,0 +1,70 @@
+#!/bin/bash
+USER="cs225"
+
+#Usage
+if [ "$#" != "2" ]; then
+	echo "Usage: $0 <arch> <block_dev>"
+	exit 1
+fi
+
+#Parse Parameters
+ARCH="$1"
+if [[ "$ARCH" = "x86" || "$ARCH" = "32" ]]; then
+	ARCH="i686"
+elif [[ "$ARCH" = "amd64" || "$ARCH" = "64" ]]; then
+	ARCH="x86_64"
+elif [[ "$ARCH" != "x86_64" && "$ARCH" != "i686" ]]; then
+	echo "Invalid Architecture $ARCH."
+	exit 1
+fi
+DEV=$2
+if [ -b "/dev/$DEV" ]; then
+	DEV="/dev/$DEV"
+fi
+if [ ! -b "/dev/$DEV" ]; then
+	echo "Invalid Block Device!"
+	exit 1
+fi
+
+#Setup Temp
+CONF="$(dirname "$(readlink -f "$0")")"
+DIR="$(mktemp -d)"
+
+#Setup Partition Table
+sgdisk -z "$DEV"
+sgdisk -o "$DEV"
+sgdisk -n 1:2048:+1M "$DEV"
+sgdisk -t 1:EF02 "$DEV"
+sgdisk -n 2::+100M "$DEV"
+sgdisk -n 3::+4G "$DEV"
+sgdisk -n 4:: "$DEV"
+
+#Format Disk
+mkfs.ext2	-L boot "${DEV}2"
+mkswap		-L swap "${DEV}3"
+mkfs.ext4	-L root "${DEV}4"
+
+#Mount the disks
+mount "${DEV}4" $DIR
+swapon "${DEV}3"
+mkdir "$DIR/boot"
+mount "${DEV}2" "$DIR/boot"
+
+#Setup Package List
+BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iputils less licenses man-db man-pages nano pacman perl procps-ng psmisc sed shadow sysfsutils syslog-ng tar texinfo util-linux which"
+DEVEL="base-devel libpng gnuplot imagemagick gdb valgrind"
+EDITORS="nano gvim emacs gedit"
+NET="wget ntp subversion git netcfg ifplugd iptables"
+SYS="sudo openssh lzop grub-bios zsh"
+X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit virtualbox-archlinux-modules virtualbox-archlinux-additions"
+
+#Run Pacman to Install Packages
+pacstrap -c "$DIR" $BASE $DEVEL $EDITORS $NET $SYS $X11 --arch "$ARCH"
+
+#Unmount the disks
+umount "$DIR/boot"
+swapoff "${DEV}3"
+umount "$DIR"
+
+#Delete Temp
+rm -rf "$DIR"
