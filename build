@@ -59,7 +59,7 @@ SYS="sudo openssh lzop grub-bios zsh mlocate"
 X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit virtualbox-archlinux-modules virtualbox-archlinux-additions xf86-input-mouse xf86-input-keyboard"
 
 #Run Pacman to Install Packages
-pacstrap -c "$DIR" $BASE $DEVEL $EDITORS $NET $SYS $X11 --arch "$ARCH"
+pacstrap -c "$DIR" $BASE $DEVEL $EDITORS $NET $SYS $X11 --arch "$ARCH" --config "$CONF/sys/pacman.conf"
 
 #Copy configuration
 cp -r "$CONF/sys/etc" "$DIR"
