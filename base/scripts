@@ -175,7 +175,7 @@ initialize_vm() {
 	if [ "$KEYS" = "Y" ]; then
 		ERROR=1
 		while [ "$ERROR" -gt "0" ]; do
-			sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no "${NETID}@remlnx.ews.illinois.edu" "if [ ! -d ~/.ssh ]; then mkdir ~/.ssh; fi; echo \"$(cat ~/.ssh/id_rsa.pub)\" >> ~/.ssh/authorized_keys;"
+			sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no "${NETID}@remlnx.ews.illinois.edu" "if [ ! -d ~/.ssh ]; then mkdir ~/.ssh; fi; echo \"$(cat ~/.ssh/id_rsa.pub)\" >> ~/.ssh/authorized_keys;" >/dev/null 2>&1
 			if [ "$?" = "0" ]; then
 				echo "Added SSH Keys Successfully" >&2
 				echo "Type the command \`ews\` to access an ews ssh session" >&2
