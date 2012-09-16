@@ -82,8 +82,9 @@ subversion_checkout() {
 			fi
 		fi
 	done
-	echo "Checked out the subversion folder for ${NETID} into ~/svn/$1"
+	echo "Checked out the subversion folder for ${NETID} into ~/svn/$1" >&2
 	echo "$NETID" > "$HOME/.netid"
+	echo $PASS
 	unset PASS
 	return 0
 }

@@ -73,7 +73,8 @@ cat $HOME/.subversion/servers | grep -v "store-plaintext-passwords" > $HOME/.sub
 echo "store-plaintext-passwords = yes" >> $HOME/.subversion/servers
 
 source $CONF/base/scripts
-subversion_checkout "cs225"
+PASS="$(subversion_checkout "cs225")"
+NETID="$(get_netid)"
 if [ "$?" -ne "0" ]; then
 	exit 1
 fi
