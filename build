@@ -86,6 +86,9 @@ echo "systemctl enable ntpd.service" >> "$DIR/setup"
 echo "systemctl enable slim.service" >> "$DIR/setup"
 echo "systemctl enable sshd.service" >> "$DIR/setup"
 
+#Setup Timezone
+echo "ln -s /usr/share/zoneinfo/America/Chicago /etc/localtime" >> "$DIR/setup"
+
 #Setup Sudoers
 echo "echo \"%sudo ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers" >> "$DIR/setup"
 
