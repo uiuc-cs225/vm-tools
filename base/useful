@@ -43,6 +43,9 @@ alias sprunge="curl -F 'sprunge=<-' http://sprunge.us"
 #ROOT
 alias root="${SUDO}su -"
 
+#SETUP
+alias setup="$(dirname "$(readlink -f "$0")")/../setup"
+
 #SSH AUTH INIT
 SOCKFILE="${HOME}/.ssh/environment-${HOST}"
 if [ "$SSH_AUTH_SOCK" = "" ]; then
