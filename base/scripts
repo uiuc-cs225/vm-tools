@@ -1,5 +1,9 @@
 #!/bin/sh
 
+get_arch() {
+	echo "$(lscpu | grep Architecture | awk '{print $2}')"
+}
+
 get_netid() {
 	echo "$(cat $HOME/.netid 2>/dev/null)"
 }
