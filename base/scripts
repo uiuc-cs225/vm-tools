@@ -34,13 +34,17 @@ subversion_checkout() {
 	DIR="$HOME/svn/$1"
 	NETID="$(get_netid)"
 	while [ "$ERROR" -gt "0" ]; do
-		URL="https://subversion.ews.illinois.edu/svn/$(get_semester)$(get_year)-$1/$NETID"
-		if [ "$PASS" = "" ]; then
-			RES="$(svn co "$URL" "$DIR" </dev/null 2>&1)"
+		if [ "$NETID" = "" ]; then
+			RET="1"
 		else
-			RES="$(svn co --username "$NETID" --password "$PASS" "$URL" "$DIR" </dev/null 2>&1)"
+			URL="https://subversion.ews.illinois.edu/svn/$(get_semester)$(get_year)-$1/$NETID"
+			if [ "$PASS" = "" ]; then
+				RES="$(svn co "$URL" "$DIR" </dev/null 2>&1)"
+			else
+				RES="$(svn co --username "$NETID" --password "$PASS" "$URL" "$DIR" </dev/null 2>&1)"
+			fi
+			RET="$?"
 		fi
-		RET="$?"
 		ERROR=0
 		if [ "$RET" != "0" ]; then
 			if [ "$(echo "$RES" | grep "authorization failed")" != "" ]; then
