@@ -1,6 +1,11 @@
 if [ ! -f "$HOME/.netid" ]; then
 	echo "Initializing scripts. This may take some time..."
 fi
+
+if [ ! -f "/etc/localtime" ]; then
+	sudo ln -s "/usr/share/zoneinfo/America/Chicago" "/etc/localtime"
+fi
+
 # Path to your oh-my-zsh configuration.
 export CONF="$(readlink -f $(dirname $(readlink -f ~/.zshrc))/../)"
 ZSH="$CONF/oh-my-zsh"
