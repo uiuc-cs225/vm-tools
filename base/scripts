@@ -129,7 +129,7 @@ initialize_vm() {
 				echo "Type the command \`ews\` to access an ews ssh session" >&2
 				ERROR=0
 			else
-				echo -n "Failed to set public key, Try Again? (Y/n)" >&2
+				echo -n "Failed to set public key, Try Again? (Y/n) " >&2
 				read TRY
 				if [ "$TRY" = "n" ]; then
 					ERROR=0
