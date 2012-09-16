@@ -1,6 +1,6 @@
 #!/bin/bash
-USER="uiuc"
-NAME="UIUC Student"
+USER="dev"
+NAME="UIUC Dev"
 HOST="uiuc-vm"
 
 #Usage
