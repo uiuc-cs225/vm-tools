@@ -36,6 +36,7 @@ subversion_checkout() {
 	while [ "$ERROR" -gt "0" ]; do
 		if [ "$NETID" = "" ]; then
 			RET="1"
+			RES="authorization failed"
 		else
 			URL="https://subversion.ews.illinois.edu/svn/$(get_semester)$(get_year)-$1/$NETID"
 			if [ "$PASS" = "" ]; then
