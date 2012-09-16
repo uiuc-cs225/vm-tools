@@ -1,1 +1,24 @@
 #!/bin/bash
+NAME="$(basename "$0")"
+CONF="$(dirname "$(readlink -f "$0")")/.."
+source "$CONF/base/scripts"
+
+echo "$(subversion_checkout cs233)"
+exit 0
+
+#Setup TMP Directory
+TMP="$(mktemp -d)"
+
+echo "Installing Packages..."
+sudo pacman -Sy
+
+#Delete TMP Directory
+rm -rf "$TMP"
+
+#Don't checkout subversion twice
+if [ ! -d "$HOME/svn/cs233" ]; then
+	echo "Downloading your CS 233 subversion folder..."
+	svn_checkout "$HOME/svn" "cs233"
+	echo "Checked out the subversion folder for $(cat $HOME/.netid) into ~/svn/cs233"
+	exit 0
+fi

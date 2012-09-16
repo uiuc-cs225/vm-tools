@@ -26,5 +26,5 @@ elif [[ "$#" -ge "2" ]]; then
 	exit 1
 fi
 
-echo "Installing Software for $1"
+echo "Preparing Environment for $1"
 $CONF/setup_classes/$1

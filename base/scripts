@@ -1,0 +1,78 @@
+#!/bin/sh
+
+get_netid() {
+	echo "$(cat $HOME/.netid 2>/dev/null)"
+}
+
+get_year() {
+	echo "$(date +%y)"
+}
+
+get_semester() {
+	MONTH="$(date +%m)"
+	DAY="$(date +%d)"
+	SEM="su"
+	if [ "$MONTH" -lt "5" ]; then
+		SEM="sp"
+	elif [ "$MONTH" -eq "5" ]; then
+		if [ "$DAY" -lt "20" ]; then
+			SEM="sp"
+		fi
+	elif [ "$MONTH" -ge "9" ]; then
+		SEM="fa"
+	elif [ "$MONTH" -eq "8" ]; then
+		if [ "$DAY" -gt "14" ]; then
+			SEM="fa"
+		fi
+	fi
+	echo $SEM
+}
+
+subversion_checkout() {
+	ERROR=1000
+	DIR="$HOME/svn/$1"
+	NETID="$(get_netid)"
+	while [ "$ERROR" -gt "0" ]; do
+		URL="https://subversion.ews.illinois.edu/svn/$(get_semester)$(get_year)-$1/$NETID"
+		if [ "$PASS" = "" ]; then
+			RES="$(svn co "$URL" "$DIR" </dev/null 2>&1)"
+		else
+			RES="$(svn co --username "$NETID" --password "$PASS" "$URL" "$DIR" </dev/null 2>&1)"
+		fi
+		RET="$?"
+		ERROR=0
+		if [ "$RET" != "0" ]; then
+			if [ "$(echo "$RES" | grep "authorization failed")" != "" ]; then
+				if [ "$PASS" != "" ]; then
+					echo 'Invalid Username or Password!'
+				fi
+				echo ""
+				echo -n "NETID: "
+				read NETID
+				echo -n "AD Password: "
+				stty -echo
+				read PASS
+				stty echo
+				echo ""
+				echo ""
+				ERROR=999
+			elif [ "$(echo "$RES" | grep "Could not resolve hostname")" != "" ]; then
+				echo -n 'Could not connect to EWS, Try Again? (Y/n) '
+				read AGAIN
+				if [[ "$AGAIN" = "n" || "$AGAIN" = "N" ]]; then
+					return 1
+				fi
+				echo ""
+				ERROR=999
+			else
+				echo 'An unknown SVN error has occurred!'
+				echo 'Please hit enter to continue...'
+				stty -echo
+				read
+				stty echo
+				return 1
+			fi
+		fi
+	done
+	return 0
+}
