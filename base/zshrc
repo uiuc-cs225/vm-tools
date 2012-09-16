@@ -7,7 +7,7 @@ export CONF="$(readlink -f $(dirname $(readlink -f ~/.zshrc))/../)"
 ZSH="$CONF/oh-my-zsh"
 echo "Checking For Updates..."
 $CONF/base/update-git >/dev/null 2>&1
-echo "Done..."
+echo "Done."
 
 # Set name of the theme to load.
 # Look in ~/.oh-my-zsh/themes/
