@@ -57,7 +57,6 @@ fi
 
 # Check for Setup Performed
 if [ ! -f "$HOME/.netid" ]; then
-	source $CONF/base/scripts
-	initialize_vm
+	$CONF/base/initialize
 	return $?;
 fi
