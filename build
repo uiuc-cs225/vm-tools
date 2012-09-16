@@ -73,7 +73,7 @@ echo "127.0.0.1 localhost localhost.localdomain $HOST" > "$DIR/etc/hosts"
 echo "::1 localhost localhost.localdomain $HOST" > "$DIR/etc/hosts"
 
 #Link Vi
-echo "ln -s /usr/bin/vim /usr/bin/vi" >> "$DIR/etc/hosts"
+echo "ln -s /usr/bin/vim /usr/bin/vi" >> "$DIR/setup"
 
 #Generate the Fstab
 genfstab -U "$DIR" >> "$DIR/etc/fstab"
