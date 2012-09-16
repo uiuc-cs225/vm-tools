@@ -2,5 +2,6 @@
 #Don't checkout subversion twice
 if [ ! -d "$HOME/svn/cs225" ]; then
 	subversion_checkout "cs225" >/dev/null
-	exit 0
+	return $?
 fi
+return 0
