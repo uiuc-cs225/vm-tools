@@ -78,6 +78,7 @@ subversion_checkout() {
 			RES="authorization failed"
 		else
 			URL="https://subversion.ews.illinois.edu/svn/$(get_semester)$(get_year)-$1/$NETID"
+			echo $URL
 			if [ "$PASS" = "" ]; then
 				RES="$(svn co "$URL" "$DIR" </dev/null 2>&1)"
 			else
