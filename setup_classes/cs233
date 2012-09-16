@@ -19,7 +19,7 @@ for i in $PKGS; do
 		rm -rf "$TMP"
 		exit 1
 	fi
-	pacman -U "$FILE" >/dev/null 2>&1
+	sudo pacman -U "$FILE" >/dev/null 2>&1
 	if [ "$?" -ne "0" ]; then
 		echo "Failed to install: $i" >&2
 		rm -rf "$TMP"
