@@ -1,7 +1,3 @@
-if [ ! -f "/etc/localtime" ]; then
-	sudo ln -s "/usr/share/zoneinfo/America/Chicago" "/etc/localtime"
-fi
-
 # Path to your oh-my-zsh configuration.
 export CONF="$(readlink -f $(dirname $(readlink -f ~/.zshrc))/../)"
 ZSH="$CONF/oh-my-zsh"
@@ -50,6 +46,9 @@ if [ ! -f "$HOME/.netid" ]; then
 fi
 source $CONF/base/useful
 alias sudo="nocorrect sudo"
+
+#Fix Things
+$CONF/base/vmfixes
 
 #CUSTOM ENHANCEMENTS
 if [ -f ~/.zshrc.local ]; then
