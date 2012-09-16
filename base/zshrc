@@ -56,52 +56,8 @@ if [ -f ~/.zshrc.local ]; then
 fi
 
 # Check for Setup Performed
-if [ -f "$HOME/.netid" ]; then
-	return 0;
-fi
-
-echo "CS 225 Virtual Environment Setup"
-
-#SETUP SUBVERSION
-if [ ! -d $HOME/svn ]; then
-	mkdir $HOME/svn
-fi
-rm -rf $HOME/.subversion
-mkdir $HOME/.subversion
-cp $CONF/base/subversion_servers $HOME/.subversion/servers
-cat $HOME/.subversion/servers | grep -v "store-plaintext-passwords" > $HOME/.subversion/servers
-echo "store-plaintext-passwords = yes" >> $HOME/.subversion/servers
-
-source $CONF/base/scripts
-PASS="$(subversion_checkout "cs225")"
-NETID="$(get_netid)"
-if [ "$?" -ne "0" ]; then
-	exit 1
-fi
-
-#SETUP SSH
-if [ ! -f ~/.ssh/id_rsa ]; then
-	echo "Creating SSH Keys"
-	${CONF}/install-ssh-keys >/dev/null 2>&1
-fi
-
-#ASK TO ADD SSH KEY TO EWS FOR EASY ACCESS
-echo -n "Would you like to add ssh keys to EWS for easy access from this vm? (y/N) "
-read KEYS
-if [[ "$KEYS" = "y" || "$KEYS" = "Y" ]]; then
-	ERROR=1
-	while [ "$ERROR" > 0 ]; do
-		sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no "${NETID}@remlnx.ews.illinois.edu" "if [ ! -d ~/.ssh ]; then mkdir ~/.ssh; fi; echo \"$(cat ~/.ssh/id_rsa.pub)\" >> ~/.ssh/authorized_keys;"
-		if [ "$?" = "0" ]; then
-			echo "Added SSH Keys Successfully"
-			echo "Type the command \`ews\` to access an ews ssh session"
-			ERROR=0
-		else
-			echo "Failed to set public key, Try Again? (Y/n)"
-			read TRY
-			if [[ "$TRY" = "n" || "$TRY" = "N" ]]; then
-				ERROR=0
-			fi
-		fi
-	done
+if [ ! -f "$HOME/.netid" ]; then
+	source $CONF/base/scripts
+	initialize_vm
+	return $?;
 fi

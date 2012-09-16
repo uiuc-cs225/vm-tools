@@ -88,3 +88,56 @@ subversion_checkout() {
 	unset PASS
 	return 0
 }
+
+initialize_vm() {
+	echo "CS 225 Virtual Environment Setup" >&2
+
+	#SETUP SUBVERSION
+	if [ ! -d $HOME/svn ]; then
+		mkdir $HOME/svn
+	fi
+	rm -rf $HOME/.subversion
+	mkdir $HOME/.subversion
+	cp $CONF/base/subversion_servers $HOME/.subversion/servers
+	cat $HOME/.subversion/servers | grep -v "store-plaintext-passwords" > $HOME/.subversion/servers
+	echo "store-plaintext-passwords = yes" >> $HOME/.subversion/servers
+
+	PASS="$(subversion_checkout "cs225")"
+	if [ "$?" -ne "0" ]; then
+		exit 1
+	fi
+	NETID="$(get_netid)"
+
+	#SETUP SSH
+	if [ ! -f ~/.ssh/id_rsa ]; then
+		echo "Creating SSH Keys" >&2
+		${CONF}/install-ssh-keys >/dev/null 2>&1
+	fi
+
+	#ASK TO ADD SSH KEY TO EWS FOR EASY ACCESS
+	echo -n "Would you like to add ssh keys to EWS for easy access from this vm? (y/N) " >&2
+	read KEYS
+	if [ "$KEYS" = "y" ]; then
+		KEYS="Y"
+	fi
+	if [ "$KEYS" = "Y" ]; then
+		ERROR=1
+		while [ "$ERROR" -gt "0" ]; do
+			sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no "${NETID}@remlnx.ews.illinois.edu" "if [ ! -d ~/.ssh ]; then mkdir ~/.ssh; fi; echo \"$(cat ~/.ssh/id_rsa.pub)\" >> ~/.ssh/authorized_keys;"
+			if [ "$?" = "0" ]; then
+				echo "Added SSH Keys Successfully" >&2
+				echo "Type the command \`ews\` to access an ews ssh session" >&2
+				ERROR=0
+			else
+				echo "Failed to set public key, Try Again? (Y/n)" >&2
+				read TRY
+				if [ "$TRY" = "n" ]; then
+					ERROR=0
+				fi
+				if [ "$TRY" = "N" ]; then
+					ERROR=0
+				fi
+			fi
+		done
+	fi
+}
