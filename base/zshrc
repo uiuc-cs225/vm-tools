@@ -89,15 +89,18 @@ fi
 echo -n "Would you like to add ssh keys to EWS for easy access from this vm? (y/N) "
 read KEYS
 if [[ "$KEYS" = "y" || "$KEYS" = "Y" ]]; then
-	sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no "${NETID}@remlnx.ews.illinois.edu" "if [ ! -d ~/.ssh ]; then mkdir ~/.ssh; fi; echo \"$(cat ~/.ssh/id_rsa.pub)\" >> ~/.ssh/authorized_keys;"
+	ERROR=1
+	while [ "$ERROR" > 0 ]; do
+		sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no "${NETID}@remlnx.ews.illinois.edu" "if [ ! -d ~/.ssh ]; then mkdir ~/.ssh; fi; echo \"$(cat ~/.ssh/id_rsa.pub)\" >> ~/.ssh/authorized_keys;"
 	if [ "$?" = "0" ]; then
 		echo "Added SSH Keys Successfully"
 		echo "Type the command \`ews\` to access an ews ssh session"
+		ERROR=0
 	else
 		echo "Failed to set public key, Try Again? (Y/n)"
 		read TRY
-		if [[ "$TRY" != "n" && "$TRY" != "N" ]]; then
-			goto 
+		if [[ "$TRY" = "n" || "$TRY" = "N" ]]; then
+			ERROR=0
 		fi
 	fi
 fi
