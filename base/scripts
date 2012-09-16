@@ -29,6 +29,7 @@ get_semester() {
 }
 
 subversion_checkout() {
+	echo "Checking out your $1 folder..."
 	ERROR=1000
 	DIR="$HOME/svn/$1"
 	NETID="$(get_netid)"
@@ -71,9 +72,13 @@ subversion_checkout() {
 				stty -echo
 				read
 				stty echo
+				unset PASS
 				return 1
 			fi
 		fi
 	done
+	echo "Checked out the subversion folder for ${NETID} into ~/svn/$1"
+	echo "$NETID" > "$HOME/.netid"
+	unset PASS
 	return 0
 }
