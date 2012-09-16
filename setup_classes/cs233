@@ -12,14 +12,18 @@ URL="https://comoto.cs.illinois.edu/cs225/class/cs233"
 PKGS="iverilog-0.9.6-1 gtkwave-3.3.37-1"
 cd $TMP
 for i in $PKGS; do
-	wget "$URL/$i-$ARCH.pkg.tar.xz" >/dev/null 2>&1
+	FILE="$i-$ARCH.pkg.tar.xz"
+	wget "$URL/$FILE" >/dev/null 2>&1
 	if [ "$?" -ne "0" ]; then
 		echo "Failed to get $i." >&2
+		rm -rf "$TMP"
 		exit 1
 	fi
-	pacman -U "$i-$ARCH.pkg.tar.xz" >/dev/null 2>&1
+	pacman -U "$FILE" >/dev/null 2>&1
 	if [ "$?" -ne "0" ]; then
 		echo "Failed to install $i." >&2
+		rm -rf "$TMP"
+		exit 1
 	fi
 done
 cd $CONF
