@@ -101,9 +101,16 @@ subversion_checkout() {
 				fi
 				echo "" >&2
 				ERROR=999
+			elif [ "$(echo "$RES" | grep "forbidden")" != "" ]; then
+				echo 'Access Forbidden' >&2
+				echo 'Are you sure you are enrolled in this class?' >&2
+				echo 'Please hit enter to continue...' >&2
+				stty -echo
+				read
+				stty echo
+				return 1
 			else
 				echo 'An unknown SVN error has occurred!' >&2
-				echo 'Are you sure you are enrolled in this class?' >&2
 				echo 'Please hit enter to continue...' >&2
 				stty -echo
 				read
