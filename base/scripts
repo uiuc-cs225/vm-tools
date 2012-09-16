@@ -158,8 +158,7 @@ initialize_vm() {
 	fi
 	rm -rf $HOME/.subversion
 	mkdir $HOME/.subversion
-	cp $CONF/base/subversion_servers $HOME/.subversion/servers
-	cat $HOME/.subversion/servers | grep -v "store-plaintext-passwords" > $HOME/.subversion/servers
+	cat $CONF/base/subversion_servers | grep -v "store-plaintext-passwords" > $HOME/.subversion/servers
 	echo "store-plaintext-passwords = yes" >> $HOME/.subversion/servers
 
 	netid_prompt
