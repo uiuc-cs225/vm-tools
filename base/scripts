@@ -7,9 +7,6 @@ get_arch() {
 get_netid() {
 	echo "$(cat $HOME/.netid 2>/dev/null)"
 }
-get_pass() {
-	echo "$(cat $HOME/.netid.pass 2>/dev/null)"
-}
 
 get_year() {
 	echo "$(date +%y)"
@@ -66,7 +63,6 @@ netid_prompt() {
 		fi
 	done
 	echo "$NETID" > "$HOME/.netid"
-	echo "$PASS" > "$HOME/.netid.pass"
 }
 
 subversion_checkout() {
@@ -166,8 +162,6 @@ initialize_vm() {
 
 	netid_prompt
 
-	echo $PASS
-
 	#SETUP SSH
 	if [ ! -f ~/.ssh/id_rsa ]; then
 		echo "Creating SSH Keys" >&2
@@ -203,14 +197,14 @@ initialize_vm() {
 
 	#Ask About Courses
 	echo "" >&2
-	$CONF/setup
+	setup
 	while [ "0" -eq "0" ]; do
 		echo -n "Select a course to install, to finish leave the field blank: "
 		read COURSE
 		if [ "$COURSE" = "" ]; then
 			break
 		fi
-		$CONF/setup "$COURSE"
+		setup "$COURSE"
 	done
 	echo "If you would like to setup courses in the future" >&2
 	echo "Use the command: setup <coursename>" >&2
