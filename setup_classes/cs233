@@ -1,7 +1,4 @@
 #!/bin/bash
-NAME="$(basename "$0")"
-CONF="$(dirname "$(readlink -f "$0")")/.."
-source "$CONF/base/scripts"
 ARCH="$(get_arch)"
 
 #Setup TMP Directory
@@ -32,7 +29,7 @@ cd $CONF
 rm -rf "$TMP"
 
 #Don't checkout subversion twice
-if [ ! -d "$HOME/svn/cs233" ]; then
-	subversion_checkout "cs233" >/dev/null
+if [ ! -d "$HOME/svn/cs398" ]; then
+	subversion_checkout "cs398" >/dev/null
 	exit 0
 fi

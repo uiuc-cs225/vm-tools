@@ -116,6 +116,36 @@ subversion_checkout() {
 	return 0
 }
 
+setup_usage() {
+	echo "Usage: $0 <course>"
+}
+
+setup_currently_available() {
+	echo "Currently Available Classes:"
+	CLASSES="$(ls $CONF/setup_classes)"
+	for i in $CLASSES; do
+		echo -e "\t$i"
+	done
+}
+
+setup() {
+	#Validate Arguments
+	if [[ "$#" -eq "0" ]]; then
+		setup_currently_available
+		exit 0
+	elif [[ "$#" -eq "1" && ! -f "$CONF/setup_classes/$1" ]]; then
+		echo "Course $1 doesn't exist!"
+		setup_currently_available
+		exit 1
+	elif [[ "$#" -ge "2" ]]; then
+		setup_usage
+		exit 1
+	fi
+
+	echo "Preparing Environment for $1"
+	source $CONF/setup_classes/$1
+}
+
 initialize_vm() {
 	echo "" >&2
 	echo "Virtual Environment Setup" >&2
@@ -166,6 +196,7 @@ initialize_vm() {
 	fi
 
 	#Ask About Courses
+	echo "" >&2
 	$CONF/setup
 	while [ "0" -eq "0" ]; do
 		echo -n "Select a course to install, to finish leave the field blank: "
