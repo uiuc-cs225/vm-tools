@@ -44,29 +44,29 @@ subversion_checkout() {
 		if [ "$RET" != "0" ]; then
 			if [ "$(echo "$RES" | grep "authorization failed")" != "" ]; then
 				if [ "$PASS" != "" ]; then
-					echo 'Invalid Username or Password!'
+					echo 'Invalid Username or Password!' >2
 				fi
 				echo ""
-				echo -n "NETID: "
+				echo -n "NETID: " >2
 				read NETID
-				echo -n "AD Password: "
+				echo -n "AD Password: " >2
 				stty -echo
 				read PASS
 				stty echo
-				echo ""
-				echo ""
+				echo "" >2
+				echo "" >2
 				ERROR=999
 			elif [ "$(echo "$RES" | grep "Could not resolve hostname")" != "" ]; then
-				echo -n 'Could not connect to EWS, Try Again? (Y/n) '
+				echo -n 'Could not connect to EWS, Try Again? (Y/n) ' >2
 				read AGAIN
 				if [[ "$AGAIN" = "n" || "$AGAIN" = "N" ]]; then
 					return 1
 				fi
-				echo ""
+				echo "" >2
 				ERROR=999
 			else
-				echo 'An unknown SVN error has occurred!'
-				echo 'Please hit enter to continue...'
+				echo 'An unknown SVN error has occurred!' >2
+				echo 'Please hit enter to continue...' >2
 				stty -echo
 				read
 				stty echo
