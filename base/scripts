@@ -173,7 +173,7 @@ initialize_vm() {
 		if [ "$COURSE" = "" ]; then
 			break
 		fi
-		$CONF/setup
+		$CONF/setup "$COURSE"
 	done
 	echo "If you would like to setup courses in the future" >&2
 	echo "Use the command: setup <coursename>" >&2
