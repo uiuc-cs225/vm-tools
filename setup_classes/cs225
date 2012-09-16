@@ -1,0 +1,10 @@
+#!/bin/bash
+NAME="$(basename "$0")"
+CONF="$(dirname "$(readlink -f "$0")")/.."
+source "$CONF/base/scripts"
+
+#Don't checkout subversion twice
+if [ ! -d "$HOME/svn/cs233" ]; then
+	subversion_checkout "cs225" >/dev/null
+	exit 0
+fi

@@ -3,7 +3,7 @@ if [ ! -f "/etc/localtime" ]; then
 	sudo ln -s "/usr/share/zoneinfo/America/Chicago" "/etc/localtime"
 fi
 if [ ! -f "/etc/hostname" ]; then
-	echo "cs225-vm" | sudo tee "/etc/hostname" >/dev/null
-	echo "127.0.0.1 localhost localhost.localdomain cs225-vm" | sudo tee "/etc/hosts" >/dev/null
-	echo "::1 localhost localhost.localdomain cs225-vm" | sudo tee -a "/etc/hosts" >/dev/null
+	echo "uiuc-vm" | sudo tee "/etc/hostname" >/dev/null
+	echo "127.0.0.1 localhost localhost.localdomain uiuc-vm" | sudo tee "/etc/hosts" >/dev/null
+	echo "::1 localhost localhost.localdomain uiuc-vm" | sudo tee -a "/etc/hosts" >/dev/null
 fi

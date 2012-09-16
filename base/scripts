@@ -32,11 +32,46 @@ get_semester() {
 	echo $SEM
 }
 
+NETID=
+PASS=
+
+test_netid() {
+	DATA=$(curl -u "$USER:$PASS" "https://" 2>/dev/null)
+	if [ "$(echo $DATA | grep "Authorization Required")" != "" ]; then
+		return 1
+	fi
+	return 0
+}
+
+netid_prompt() {
+	ERROR=1
+	while [ "$ERROR" -gt "0" ]; do
+		echo "" >&2
+		echo -n "NETID: " >&2
+		read NETID
+		echo -n "AD Password: " >&2
+		stty -echo
+		read PASS
+		stty echo
+		echo "" >&2
+		echo "" >&2
+		DATA="$(curl -u "$NETID:$PASS" "https://subversion.ews.illinois.edu/svn/fa12-cs225/" 2>/dev/null)"
+		if [ "$(echo "$DATA" | grep "Authorization Required")" != "" ]; then
+			echo 'Invalid Username or Password!' >&2
+		else
+			ERROR=0
+		fi
+	done
+	echo "$NETID" > "$HOME/.netid"
+}
+
 subversion_checkout() {
 	echo "Checking out your $1 folder..." >&2
 	ERROR=1000
 	DIR="$HOME/svn/$1"
-	NETID="$(get_netid)"
+	if [ "$NETID" = "" ]; then
+		NETID="$(get_netid)"
+	fi
 	while [ "$ERROR" -gt "0" ]; do
 		if [ "$NETID" = "" ]; then
 			RET="1"
@@ -56,15 +91,7 @@ subversion_checkout() {
 				if [ "$PASS" != "" ]; then
 					echo 'Invalid Username or Password!' >&2
 				fi
-				echo "" >&2
-				echo -n "NETID: " >&2
-				read NETID
-				echo -n "AD Password: " >&2
-				stty -echo
-				read PASS
-				stty echo
-				echo "" >&2
-				echo "" >&2
+				netid_prompt
 				ERROR=999
 			elif [ "$(echo "$RES" | grep "Could not resolve hostname")" != "" ]; then
 				echo -n 'Could not connect to EWS, Try Again? (Y/n) ' >&2
@@ -81,21 +108,17 @@ subversion_checkout() {
 				stty -echo
 				read
 				stty echo
-				unset PASS
 				return 1
 			fi
 		fi
 	done
 	echo "Checked out the subversion folder for ${NETID} into ~/svn/$1" >&2
-	echo "$NETID" > "$HOME/.netid"
-	echo $PASS
-	unset PASS
 	return 0
 }
 
 initialize_vm() {
 	echo "" >&2
-	echo "CS 225 Virtual Environment Setup" >&2
+	echo "Virtual Environment Setup" >&2
 
 	#SETUP SUBVERSION
 	if [ ! -d $HOME/svn ]; then
@@ -107,11 +130,7 @@ initialize_vm() {
 	cat $HOME/.subversion/servers | grep -v "store-plaintext-passwords" > $HOME/.subversion/servers
 	echo "store-plaintext-passwords = yes" >> $HOME/.subversion/servers
 
-	PASS="$(subversion_checkout "cs225")"
-	if [ "$?" -ne "0" ]; then
-		exit 1
-	fi
-	NETID="$(get_netid)"
+	netid_prompt
 
 	#SETUP SSH
 	if [ ! -f ~/.ssh/id_rsa ]; then
@@ -145,4 +164,19 @@ initialize_vm() {
 			fi
 		done
 	fi
+
+	#Ask About Courses
+	$CONF/setup
+	while [ "0" -eq "0" ]; do
+		echo -n "Select a course to install, to finish leave the field blank: "
+		read COURSE
+		if [ "$COURSE" = "" ]; then
+			break
+		fi
+		$CONF/setup
+	done
+	echo "If you would like to setup courses in the future" >&2
+	echo "Use the command: setup <coursename>" >&2
+
+	unset PASS
 }
