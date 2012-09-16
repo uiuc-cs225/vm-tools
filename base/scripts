@@ -132,14 +132,14 @@ setup() {
 	#Validate Arguments
 	if [[ "$#" -eq "0" ]]; then
 		setup_currently_available
-		exit 0
+		return 0
 	elif [[ "$#" -eq "1" && ! -f "$CONF/setup_classes/$1" ]]; then
 		echo "Course $1 doesn't exist!"
 		setup_currently_available
-		exit 1
+		return 1
 	elif [[ "$#" -ge "2" ]]; then
 		setup_usage
-		exit 1
+		return 1
 	fi
 
 	echo "Preparing Environment for $1"
