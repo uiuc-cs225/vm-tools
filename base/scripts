@@ -52,7 +52,7 @@ subversion_checkout() {
 				if [ "$PASS" != "" ]; then
 					echo 'Invalid Username or Password!' >&2
 				fi
-				echo ""
+				echo "" >&2
 				echo -n "NETID: " >&2
 				read NETID
 				echo -n "AD Password: " >&2
@@ -90,6 +90,7 @@ subversion_checkout() {
 }
 
 initialize_vm() {
+	echo "" >&2
 	echo "CS 225 Virtual Environment Setup" >&2
 
 	#SETUP SUBVERSION
