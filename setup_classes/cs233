@@ -2,23 +2,33 @@
 NAME="$(basename "$0")"
 CONF="$(dirname "$(readlink -f "$0")")/.."
 source "$CONF/base/scripts"
-
-echo "$(subversion_checkout cs233)"
-exit 0
+ARCH="$(get_arch)"
 
 #Setup TMP Directory
 TMP="$(mktemp -d)"
 
 echo "Installing Packages..."
-sudo pacman -Sy
+URL="https://comoto.cs.illinois.edu/cs225/class/cs233"
+PKGS="iverilog-0.9.6-1 gtkwave-3.3.37-1"
+cd $TMP
+for i in $PKGS; do
+	wget "$URL/$i-$ARCH.pkg.tar.xz" >/dev/null 2>&1
+	if [ "$?" -ne "0" ]; then
+		echo "Failed to get $i." >&2
+		exit 1
+	fi
+	pacman -U "$i-$ARCH.pkg.tar.xz" >/dev/null 2>&1
+	if [ "$?" -ne "0" ]; then
+		echo "Failed to install $i." >&2
+	fi
+done
+cd $CONF
 
 #Delete TMP Directory
 rm -rf "$TMP"
 
 #Don't checkout subversion twice
 if [ ! -d "$HOME/svn/cs233" ]; then
-	echo "Downloading your CS 233 subversion folder..."
-	svn_checkout "$HOME/svn" "cs233"
-	echo "Checked out the subversion folder for $(cat $HOME/.netid) into ~/svn/cs233"
+	subversion_checkout "cs233" >/dev/null
 	exit 0
 fi
