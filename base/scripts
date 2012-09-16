@@ -211,3 +211,30 @@ initialize_vm() {
 
 	unset PASS
 }
+
+get_packages() {
+	TMP="$(mktemp -d)"
+	OLD="$(pwd)"
+	cd $TMP
+	URL="https://comoto.cs.illinois.edu/cs225/class/$1"
+	PKGS="$2"
+	for i in $PKGS; do
+		FILE="$i-$ARCH.pkg.tar.xz"
+		wget "$URL/$FILE" >/dev/null 2>&1
+		if [ "$?" -ne "0" ]; then
+			echo "Failed to retrieve: $i" >&2
+			cd "$OLD"
+			rm -rf "$TMP"
+			return 1
+		fi
+		sudo pacman -U --noconfirm "$FILE" >/dev/null 2>&1
+		if [ "$?" -ne "0" ]; then
+			echo "Failed to install: $i" >&2
+			cd "$OLD"
+			rm -rf "$TMP"
+			return 1
+		fi
+	done
+	cd "$OLD"
+	rm -rf "$TMP"
+}
