@@ -156,13 +156,31 @@ initialize_vm() {
 	rm -rf $HOME/.subversion
 	mkdir $HOME/.subversion
 	cat $CONF/base/subversion_servers | grep -v "store-plaintext-passwords" > $HOME/.subversion/servers
-	echo "store-plaintext-passwords = yes" >> $HOME/.subversion/servers
 
 	netid_prompt
+	
+	#ASK ABOUT PLAINTEXT PASSWORDS
+	echo -n "Would you like to store this password encrypted? (y/N) "
+	read ENC
+	if [ "$ENC" = "y" ]; then
+		ENC="Y"
+	fi
+	if [ "$ENC" = "Y" ]; then
+		echo "Installing Keyring..." >&2
+		pacman -Q gnome-keyring >/dev/null 2>&1
+		if [ "$?" -ne "0" ]; then
+			get_packages "global" "gcr-3.4.1-1 libcap-ng-0.7-1 gnome-keyring-3.4.1-3"
+		fi
+		pacman -Q libgnome-keyring >/dev/null 2>&1
+		if [ "$?" -ne "0" ]; then
+			get_packages "global" "libgnome-keyring-3.4.1-1"
+		fi
+	else
+		echo "store-plaintext-passwords = yes" >> $HOME/.subversion/servers
+	fi
 
 	#SETUP SSH
 	if [ ! -f ~/.ssh/id_rsa ]; then
-		echo "Creating SSH Keys" >&2
 		${CONF}/install-ssh-keys >/dev/null 2>&1
 	fi
 
