@@ -215,7 +215,8 @@ initialize_vm() {
 	echo "" >&2
 	setup
 	while [ "0" -eq "0" ]; do
-		echo -n "Select a course to install, to finish leave the field blank: "
+		echo "" >&2
+		echo -n "Select a course to install, to finish leave the field blank: " >&2
 		read COURSE
 		if [ "$COURSE" = "" ]; then
 			break
