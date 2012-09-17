@@ -235,6 +235,7 @@ get_packages() {
 	cd $TMP
 	URL="https://comoto.cs.illinois.edu/cs225/class/$1"
 	PKGS="$2"
+	ARCH="$(get_arch)"
 	for i in $PKGS; do
 		FILE="$i-$ARCH.pkg.tar.xz"
 		wget "$URL/$FILE" >/dev/null 2>&1
