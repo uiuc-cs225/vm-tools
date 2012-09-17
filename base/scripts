@@ -106,6 +106,7 @@ subversion_checkout() {
 				echo 'Are you sure you are enrolled in this class?' >&2
 				return 1
 			else
+				echo "$RES" >&2
 				echo 'An unknown SVN error has occurred!' >&2
 				return 1
 			fi
