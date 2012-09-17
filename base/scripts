@@ -106,7 +106,6 @@ subversion_checkout() {
 				echo 'Are you sure you are enrolled in this class?' >&2
 				return 1
 			else
-				echo "$RES" >&2
 				echo 'An unknown SVN error has occurred!' >&2
 				return 1
 			fi
@@ -175,6 +174,12 @@ initialize_vm() {
 		pacman -Q libgnome-keyring >/dev/null 2>&1
 		if [ "$?" -ne "0" ]; then
 			get_packages "global" "libgnome-keyring-3.4.1-1"
+		fi
+		if [ ! -d "$HOME/.gnome2" ]; then
+			mkdir "$HOME/.gnome2"
+		fi
+		if [ ! -d "$HOME/.gnome2/keyrings" ]; then
+			mkdir "$HOME/.gnome2/keyrings"
 		fi
 	else
 		echo "store-plaintext-passwords = yes" >> $HOME/.subversion/servers
