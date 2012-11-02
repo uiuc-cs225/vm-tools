@@ -53,7 +53,7 @@ mkdir "$DIR/boot"
 mount "${DEV}2" "$DIR/boot"
 
 #Setup Package List
-BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iputils less licenses man-db man-pages nano pacman perl procps-ng psmisc sed shadow sysfsutils syslog-ng systemd systemd-arch-units systemd-sysvcompat tar texinfo util-linux which"
+BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iputils less licenses man-db man-pages nano pacman perl procps-ng psmisc sed shadow sysfsutils syslog-ng systemd systemd-sysvcompat tar texinfo util-linux which"
 DEVEL="base-devel libpng gnuplot imagemagick gdb valgrind"
 EDITORS="nano gvim emacs gedit"
 NET="wget ntp subversion git netcfg ifplugd iptables"
