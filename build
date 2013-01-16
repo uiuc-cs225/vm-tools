@@ -53,10 +53,10 @@ mkdir "$DIR/boot"
 mount "${DEV}2" "$DIR/boot"
 
 #Setup Package List
-BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iputils less licenses man-db man-pages nano pacman perl procps-ng psmisc sed shadow sysfsutils syslog-ng systemd systemd-sysvcompat tar texinfo util-linux which"
+BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils less licenses man-db man-pages nano netcfg pacman perl procps-ng psmisc sed shadow sysfsutils systemd systemd-sysvcompat tar texinfo usbutils util-linux vi which"
 DEVEL="base-devel libpng gnuplot imagemagick gdb valgrind"
-EDITORS="nano gvim emacs gedit"
-NET="wget ntp subversion git netcfg ifplugd iptables"
+EDITORS="gvim emacs gedit"
+NET="wget ntp subversion git ifplugd iptables"
 SYS="sudo openssh lzop grub-bios zsh mlocate sshpass"
 X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit virtualbox-guest-modules virtualbox-guest-utils xf86-input-mouse xf86-input-keyboard gnome-themes-standard ttf-dejavu ttf-liberation"
 
@@ -69,11 +69,11 @@ cp -r "$CONF/sys/home" "$DIR/home/$USER"
 
 #Setup Hostname
 echo "$HOST" > "$DIR/etc/hostname"
-echo "127.0.0.1 localhost localhost.localdomain $HOST" > "$DIR/etc/hosts"
-echo "::1 localhost localhost.localdomain $HOST" > "$DIR/etc/hosts"
+echo "127.0.0.1 localhost localhost.uiuc" > "$DIR/etc/hosts"
+echo "::1 localhost localhost.uiuc" > "$DIR/etc/hosts"
 
-#Link Vi
-echo "ln -s /usr/bin/vim /usr/bin/vi" >> "$DIR/setup"
+#Link Vi if replacing
+#echo "ln -s /usr/bin/vim /usr/bin/vi" >> "$DIR/setup"
 
 #Generate the Fstab
 genfstab -U "$DIR" >> "$DIR/etc/fstab"
