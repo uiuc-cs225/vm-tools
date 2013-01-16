@@ -79,9 +79,9 @@ subversion_checkout() {
 		else
 			URL="https://subversion.ews.illinois.edu/svn/$(get_semester)$(get_year)-$1/$NETID"
 			if [ "$PASS" = "" ]; then
-				RES="$(svn co "$URL" "$DIR" </dev/null 2>&1)"
+				RES="$(svn co --non-interactive "$URL" "$DIR" </dev/null 2>&1)"
 			else
-				RES="$(svn co --username "$NETID" --password "$PASS" "$URL" "$DIR" </dev/null 2>&1)"
+				RES="$(svn co --non-interactive --username "$NETID" --password "$PASS" "$URL" "$DIR" </dev/null 2>&1)"
 			fi
 			RET="$?"
 		fi
