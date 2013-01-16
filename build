@@ -111,6 +111,7 @@ echo "chown -R $USER:users /home/$USER" >> "$DIR/setup"
 REPO="$(git remote show -n origin | grep "Fetch URL" | awk '{print $3}')"
 echo "su -c \"git clone \\\"$REPO\\\" /home/$USER/.vmtools\" $USER" >> "$DIR/setup"
 echo "su -c \"/home/$USER/.vmtools/install-base\" $USER" >> "$DIR/setup"
+echo "chmod -R +x /home/$USER/Desktop" >> "$DIR/setup"
 
 #Run the Setup Script
 arch-chroot "$DIR" "/bin/sh" "/setup"
