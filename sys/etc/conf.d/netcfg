@@ -6,7 +6,7 @@
 NETWORKS=(last)
 
 # Specify the name of your wired interface for net-auto-wired
-WIRED_INTERFACE="enxDEADBEEFCAFE"
+WIRED_INTERFACE="enxdeadbeefcafe"
 
 # Specify the name of your wireless interface for net-auto-wireless
 WIRELESS_INTERFACE="wlan0"
