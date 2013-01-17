@@ -2,7 +2,7 @@
 ARCH="$(get_arch)"
 
 echo "Installing Packages..."
-get_packages "cs233" "iverilog-0.9.6-1 gtkwave-3.3.40-1"
+get_packages "cs233" "gtkwave-3.3.40-1 iverilog-0.9.6-1"
 if [ "$?" -ne "0" ]; then
 	return 1
 fi
