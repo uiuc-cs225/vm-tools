@@ -160,30 +160,39 @@ initialize_vm() {
 	netid_prompt
 	
 	#ASK ABOUT PLAINTEXT PASSWORDS
-	echo -n "Would you like to store this password encrypted? (y/N) "
-	read ENC
-	if [ "$ENC" = "y" ]; then
-		ENC="Y"
-	fi
-	if [ "$ENC" = "Y" ]; then
-		echo "Installing Keyring..." >&2
-		pacman -Q gnome-keyring >/dev/null 2>&1
-		if [ "$?" -ne "0" ]; then
-			get_packages "global" "gcr-3.6.2-2 libcap-ng-0.7.3-1 gnome-keyring-3.6.2-1"
+	while true; do
+		echo -n "Would you like to store this password encrypted? (y/N) "
+		read ENC
+		if [ "$ENC" = "y" ]; then
+			ENC="Y"
 		fi
-		pacman -Q libgnome-keyring >/dev/null 2>&1
-		if [ "$?" -ne "0" ]; then
-			get_packages "global" "libgnome-keyring-3.6.0-1"
+		if [ "$ENC" = "Y" ]; then
+			echo "Installing Keyring..." >&2
+			pacman -Q gnome-keyring >/dev/null 2>&1
+			if [ "$?" -ne "0" ]; then
+				get_packages "global" "gcr-3.6.2-2 libcap-ng-0.7.3-1 gnome-keyring-3.6.2-1"
+				if [ "$?" -ne "0" ]; then
+					continue
+				fi
+			fi
+			pacman -Q libgnome-keyring >/dev/null 2>&1
+			if [ "$?" -ne "0" ]; then
+				get_packages "global" "libgnome-keyring-3.6.0-1"
+				if [ "$?" -ne "0" ]; then
+					continue
+				fi
+			fi
+			if [ ! -d "$HOME/.gnome2" ]; then
+				mkdir "$HOME/.gnome2"
+			fi
+			if [ ! -d "$HOME/.gnome2/keyrings" ]; then
+				mkdir "$HOME/.gnome2/keyrings"
+			fi
+		else
+			echo "store-plaintext-passwords = yes" >> $HOME/.subversion/servers
 		fi
-		if [ ! -d "$HOME/.gnome2" ]; then
-			mkdir "$HOME/.gnome2"
-		fi
-		if [ ! -d "$HOME/.gnome2/keyrings" ]; then
-			mkdir "$HOME/.gnome2/keyrings"
-		fi
-	else
-		echo "store-plaintext-passwords = yes" >> $HOME/.subversion/servers
-	fi
+		break
+	done
 
 	#SETUP SSH
 	if [ ! -f ~/.ssh/id_rsa ]; then
