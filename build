@@ -5,11 +5,11 @@ HOST="uiuc-vm"
 
 #Usage
 if [ "$#" != "2" ]; then
-	echo "Usage: $0 <arch> <block_dev>"
+	echo "Usage: $0 <arch> <outfile>"
 	exit 1
 fi
 
-#Parse Parameters
+# Parse Architecture
 ARCH="$1"
 if [[ "$ARCH" = "x86" || "$ARCH" = "32" ]]; then
 	ARCH="i686"
@@ -19,20 +19,60 @@ elif [[ "$ARCH" != "x86_64" && "$ARCH" != "i686" ]]; then
 	echo "Invalid Architecture $ARCH."
 	exit 1
 fi
-DEV=$2
-if [ -b "/dev/$DEV" ]; then
-	DEV="/dev/$DEV"
-fi
-if [ ! -b "$DEV" ]; then
-	echo "Invalid Block Device!"
+
+# Must run as root
+if [ "$(id -u)" -ne "0" ]; then
+	echo "You must be running as root"
 	exit 1
 fi
 
-#Setup Temp
+# Install the required tools
+PACMAN=$(which pacman 2>/dev/null)
+if [ ! -x "$PACMAN" ]; then
+	echo "Not on an archlinux system"
+	exit 1
+fi
+PACKAGES="qemu-kvm virtualbox gptfdisk e2fsprogs arch-install-scripts"
+$PACMAN -Sy --needed --noconfirm $PACKAGES
+if [ "$?" -ne "0" ]; then
+	echo "Failed to install base dependencies"
+	exit 1
+fi
+
+# Setup Temp
 CONF="$(dirname "$(readlink -f "$0")")"
 DIR="$(mktemp -d)"
 
-#Setup Partition Table
+# Create the virtual disk image
+DISK="$DIR/disk.vdi"
+if [ -f "$DISK" ]; then
+	rm -f "$DISK"
+fi
+vboxmanage createvdi -filename "$DISK" -size 102400 >/dev/null 2>&1
+
+# Mount the Disk
+DEV="/dev/nbd0"
+#mknod "$DEV" b 0 0
+modprobe nbd
+qemu-nbd -n -c "$DISK" "$DEV"
+if [ "$?" -ne "0" ]; then
+	rm -rf "$DIR"
+	echo "Failed to mount the virtual disk"
+	exit 1
+fi
+qemu-nbd -d "$DEV"
+rm -rf "$DIR"
+exit 1
+
+# Check for the virtual block device
+if [ ! -b "$DEV" ]; then
+	echo "Invalid Block Device!"
+	qemu-nbd -d "$DEV"
+	rm -rf "$DIR"
+	exit 1
+fi
+
+# Setup Partition Table
 sgdisk -z "$DEV"
 sgdisk -o "$DEV"
 sgdisk -n 1:2048:+1M "$DEV"
@@ -41,18 +81,18 @@ sgdisk -n 2::+100M "$DEV"
 sgdisk -n 3::+4G "$DEV"
 sgdisk -n 4:: "$DEV"
 
-#Format Disk
+# Format Disk
 mkfs.ext2	-L boot "${DEV}2"
 mkswap		-L swap "${DEV}3"
 mkfs.ext4	-L root "${DEV}4"
 
-#Mount the disks
-mount "${DEV}4" $DIR
+# Mount the disks
+mount "${DEV}4" "$DIR"
 swapon "${DEV}3"
 mkdir "$DIR/boot"
 mount "${DEV}2" "$DIR/boot"
 
-#Setup Package List
+# Setup Package List
 BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils less licenses man-db man-pages nano netcfg pacman perl procps-ng psmisc sed shadow sysfsutils systemd systemd-sysvcompat tar texinfo usbutils util-linux vi which"
 DEVEL="base-devel libpng gnuplot imagemagick gdb valgrind"
 EDITORS="gvim emacs gedit"
@@ -60,48 +100,48 @@ NET="wget ntp subversion git ifplugd iptables"
 SYS="sudo openssh lzop grub-bios zsh mlocate sshpass"
 X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit virtualbox-guest-modules virtualbox-guest-utils xf86-input-mouse xf86-input-keyboard gnome-themes-standard ttf-dejavu ttf-liberation"
 
-#Run Pacman to Install Packages
+# Run Pacman to Install Packages
 pacstrap -c "$DIR" $BASE $DEVEL $EDITORS $NET $SYS $X11 --arch "$ARCH" --config "$CONF/sys/pacman.conf"
 
-#Copy configuration
+# Copy configuration
 cp -r "$CONF/sys/etc" "$DIR"
 cp -r "$CONF/sys/home" "$DIR/home/$USER"
 
-#Setup Hostname
+# Setup Hostname
 echo "$HOST" > "$DIR/etc/hostname"
 echo "127.0.0.1 localhost localhost.uiuc" > "$DIR/etc/hosts"
 echo "::1 localhost localhost.uiuc" > "$DIR/etc/hosts"
 
-#Link Vi if replacing
+# Link Vi if replacing
 #echo "ln -s /usr/bin/vim /usr/bin/vi" >> "$DIR/setup"
 
-#Generate the Fstab
+# Generate the Fstab
 genfstab -U "$DIR" >> "$DIR/etc/fstab"
 
-#Install Grub
+# Install Grub
 echo "grub-install --boot-directory=/boot --recheck --no-floppy \"$DEV\"" >> "$DIR/setup"
 echo "grub-mkconfig -o /boot/grub/grub.cfg" >> "$DIR/setup"
 
-#Setup Locale
+# Setup Locale
 echo "locale-gen" >> "$DIR/setup"
 
-#Build Initramfs
+# Build Initramfs
 echo "mkinitcpio -p linux" >> "$DIR/setup"
 
-#Setup Systemd Services
+# Setup Systemd Services
 echo "systemctl enable cronie.service" >> "$DIR/setup"
 echo "systemctl enable net-auto-wired.service" >> "$DIR/setup"
 echo "systemctl enable ntpd.service" >> "$DIR/setup"
 echo "systemctl enable slim.service" >> "$DIR/setup"
 echo "systemctl enable sshd.service" >> "$DIR/setup"
 
-#Setup Timezone
+# Setup Timezone
 echo "ln -s /usr/share/zoneinfo/America/Chicago /etc/localtime" >> "$DIR/setup"
 
-#Setup Sudoers
+# Setup Sudoers
 echo "echo \"%sudo ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers" >> "$DIR/setup"
 
-#Add Default User
+# Add Default User
 echo "echo \"default_user $USER\" >> /etc/slim.conf" >> "$DIR/setup"
 echo "groupadd sshaccess" >> "$DIR/setup"
 echo "groupadd sudo" >> "$DIR/setup"
@@ -113,16 +153,16 @@ echo "su -c \"git clone \\\"$REPO\\\" /home/$USER/.vmtools\" $USER" >> "$DIR/set
 echo "su -c \"/home/$USER/.vmtools/install-base\" $USER" >> "$DIR/setup"
 echo "chmod -R +x /home/$USER/Desktop" >> "$DIR/setup"
 
-#Run the Setup Script
+# Run the Setup Script
 arch-chroot "$DIR" "/bin/sh" "/setup"
 shred "$DIR/setup"
 
 rm "$DIR/setup"
 
-#Unmount the disks
+# Unmount the disks
 umount "$DIR/boot"
 swapoff "${DEV}3"
 umount "$DIR"
 
-#Delete Temp
+# Delete Temp
 rm -rf "$DIR"
