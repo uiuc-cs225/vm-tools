@@ -44,30 +44,37 @@ CONF="$(dirname "$(readlink -f "$0")")"
 DIR="$(mktemp -d)"
 
 # Create the virtual disk image
-DISK="$DIR/disk.vdi"
+DISK="$2.vdi"
 if [ -f "$DISK" ]; then
 	rm -f "$DISK"
 fi
 vboxmanage createvdi -filename "$DISK" -size 102400 >/dev/null 2>&1
 
 # Mount the Disk
-DEV="/dev/nbd0"
-#mknod "$DEV" b 0 0
 modprobe nbd
-qemu-nbd -n -c "$DISK" "$DEV"
-if [ "$?" -ne "0" ]; then
+FILES="$(ls /dev | grep nbd)"
+for FILE in $FILES; do
+	DEV="/dev/$FILE"
+	qemu-nbd -n -c "$DEV" "$DISK"
+	if [ "$?" -eq "0" ]; then
+		break
+	fi
+	DEV=""
+done
+if [ "$DEV" = "" ]; then
 	rm -rf "$DIR"
+	rm -f "$DISK"
 	echo "Failed to mount the virtual disk"
 	exit 1
 fi
-qemu-nbd -d "$DEV"
-rm -rf "$DIR"
-exit 1
+
+partprobe "$DEV"
 
 # Check for the virtual block device
 if [ ! -b "$DEV" ]; then
 	echo "Invalid Block Device!"
 	qemu-nbd -d "$DEV"
+	rm -f "$DISK"
 	rm -rf "$DIR"
 	exit 1
 fi
@@ -85,10 +92,10 @@ sgdisk -n 4:: "$DEV"
 mkfs.ext2	-L boot "${DEV}2"
 mkswap		-L swap "${DEV}3"
 mkfs.ext4	-L root "${DEV}4"
+partprobe "$DEV"
 
 # Mount the disks
 mount "${DEV}4" "$DIR"
-swapon "${DEV}3"
 mkdir "$DIR/boot"
 mount "${DEV}2" "$DIR/boot"
 
@@ -161,8 +168,9 @@ rm "$DIR/setup"
 
 # Unmount the disks
 umount "$DIR/boot"
-swapoff "${DEV}3"
 umount "$DIR"
 
 # Delete Temp
+qemu-nbd -d "$DEV"
 rm -rf "$DIR"
+rm -f "$DISK"
