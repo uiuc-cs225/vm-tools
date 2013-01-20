@@ -43,6 +43,7 @@ fi
 cleanup() {
 	eval 'umount $DIR/boot 2>/dev/null'
 	eval 'umount $DIR 2>/dev/null'
+	eval 'loop_down "$LOOP" 2>/dev/null'
 	eval 'qemu-nbd -d "$DEV" >/dev/null 2>&1'
 	eval 'rm -f "$DISK"'
 	eval 'rm -rf "$DIR"'
@@ -186,5 +187,4 @@ shred "$DIR/setup"
 rm "$DIR/setup"
 
 # Cleanup
-loop_down "$LOOP"
 cleanup 0
