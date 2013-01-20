@@ -92,20 +92,31 @@ sgdisk -n 2::+100M "$DEV"
 sgdisk -n 3::+4G "$DEV"
 sgdisk -n 4:: "$DEV"
 
-# Format Disk
-partprobe -s
-gdisk -l "$DEV"
-ls -la /dev/disk/by-uuid
-cleanup 0
+BS="$(sudo gdisk -l "$DEV" | grep "Logical sector" | awk '{print $4}')"
+offset() {
+	echo $(expr $(sudo sgdisk "$DEV" -i "$1" | grep "First sector" | awk '{print $3}') \* $BS)
+}
+size() {
+	echo $(expr $(sudo sgdisk "$DEV" -i "$1"| grep size | awk '{print $3}') \* $BS)
+}
+loop_up() {
+	losetup -P -f --show "$DEV"
+}
+loop_down() {
+	sleep 1
+	losetup -d "$1"
+}
 
-mkfs.ext2	-L boot "${DEV}2"
-mkswap		-L swap "${DEV}3"
-mkfs.ext4	-L root "${DEV}4"
+# Format Disk
+LOOP="$(loop_up)"
+mkfs.ext2 -L boot "${LOOP}p2"
+mkswap -L swap "${LOOP}p3"
+mkfs.ext4 -L root "${LOOP}p4"
 
 # Mount the disks
-mount "${DEV}4" "$DIR"
+mount -o "${LOOP}p4" "$DIR"
 mkdir "$DIR/boot"
-mount "${DEV}2" "$DIR/boot"
+mount "${LOOP}p2" "$DIR/boot"
 
 # Setup Package List
 BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils less licenses man-db man-pages nano netcfg pacman perl procps-ng psmisc sed shadow sysfsutils systemd systemd-sysvcompat tar texinfo usbutils util-linux vi which"
@@ -175,4 +186,5 @@ shred "$DIR/setup"
 rm "$DIR/setup"
 
 # Cleanup
+loop_down "$LOOP"
 cleanup 0
