@@ -39,6 +39,16 @@ if [ "$?" -ne "0" ]; then
 	exit 1
 fi
 
+# Force Cleanup
+cleanup() {
+	eval 'umount $DIR/boot 2>/dev/null'
+	eval 'umount $DIR 2>/dev/null'
+	eval 'qemu-nbd -d "$DEV" >/dev/null 2>&1'
+	eval 'rm -f "$DISK"'
+	eval 'rm -rf "$DIR"'
+	exit $1
+}
+
 # Setup Temp
 CONF="$(dirname "$(readlink -f "$0")")"
 DIR="$(mktemp -d)"
@@ -62,21 +72,14 @@ for FILE in $FILES; do
 	DEV=""
 done
 if [ "$DEV" = "" ]; then
-	rm -rf "$DIR"
-	rm -f "$DISK"
 	echo "Failed to mount the virtual disk"
-	exit 1
+	cleanup 1
 fi
-
-partprobe "$DEV"
 
 # Check for the virtual block device
 if [ ! -b "$DEV" ]; then
 	echo "Invalid Block Device!"
-	qemu-nbd -d "$DEV"
-	rm -f "$DISK"
-	rm -rf "$DIR"
-	exit 1
+	cleanup 1
 fi
 
 # Setup Partition Table
@@ -89,10 +92,14 @@ sgdisk -n 3::+4G "$DEV"
 sgdisk -n 4:: "$DEV"
 
 # Format Disk
+partprobe -s
+gdisk -l "$DEV"
+ls -la /dev/disk/by-uuid
+cleanup 0
+
 mkfs.ext2	-L boot "${DEV}2"
 mkswap		-L swap "${DEV}3"
 mkfs.ext4	-L root "${DEV}4"
-partprobe "$DEV"
 
 # Mount the disks
 mount "${DEV}4" "$DIR"
@@ -166,11 +173,5 @@ shred "$DIR/setup"
 
 rm "$DIR/setup"
 
-# Unmount the disks
-umount "$DIR/boot"
-umount "$DIR"
-
-# Delete Temp
-qemu-nbd -d "$DEV"
-rm -rf "$DIR"
-rm -f "$DISK"
+# Cleanup
+cleanup 0
