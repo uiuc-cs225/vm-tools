@@ -114,7 +114,7 @@ mkswap -L swap "${LOOP}p3"
 mkfs.ext4 -L root "${LOOP}p4"
 
 # Mount the disks
-mount -o "${LOOP}p4" "$DIR"
+mount "${LOOP}p4" "$DIR"
 mkdir "$DIR/boot"
 mount "${LOOP}p2" "$DIR/boot"
 
