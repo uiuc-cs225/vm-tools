@@ -147,9 +147,6 @@
     <StorageControllers>
       <StorageController name="IDE Controller" type="PIIX4" PortCount="2" useHostIOCache="true" Bootable="true"/>
       <StorageController name="SATA Controller" type="AHCI" PortCount="1" useHostIOCache="false" Bootable="true" IDE0MasterEmulationPort="0" IDE0SlaveEmulationPort="1" IDE1MasterEmulationPort="2" IDE1SlaveEmulationPort="3">
-        <AttachedDevice type="HardDisk" port="0" device="0">
-          <Image uuid="{cb12252f-d351-41b8-b795-cc93855fa189}"/>
-        </AttachedDevice>
       </StorageController>
     </StorageControllers>
   </Machine>
