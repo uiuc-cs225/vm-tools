@@ -60,7 +60,7 @@ DISK="$2.vdi"
 if [ -f "$DISK" ]; then
 	rm -f "$DISK"
 fi
-vboxmanage createvdi -filename "$DISK" -size 102400 >/dev/null 2>&1
+qemu-img create -f qcow2 "$DISK" 100G
 
 # Mount the Disk
 modprobe nbd
@@ -77,6 +77,8 @@ if [ "$DEV" = "" ]; then
 	echo "Failed to mount the virtual disk"
 	cleanup 1
 fi
+read
+cleanup 1
 
 # Check for the virtual block device
 if [ ! -b "$DEV" ]; then
@@ -129,7 +131,7 @@ X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit v
 
 # Run Pacman to Install Packages
 pacstrap -c "$DIR" $BASE $DEVEL $EDITORS $NET $SYS $X11 --arch "$ARCH" --config "$CONF/sys/pacman.conf"
-
+read
 # Copy configuration
 cp -r "$CONF/sys/etc" "$DIR"
 cp -r "$CONF/sys/home" "$DIR/home/$USER"
