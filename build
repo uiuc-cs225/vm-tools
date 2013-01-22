@@ -13,6 +13,7 @@ fi
 OUT="/dev/null"
 if [ "$#" -ge "3" ]; then
 	OUT="$3"
+	echo -n "" > "$OUT"
 fi
 
 # Parse Architecture
@@ -201,8 +202,8 @@ echo "useradd -s /bin/zsh -G sshaccess,sudo $USER" >> "$DIR/setup"
 echo "chfn -f \"$NAME\" $USER" >> "$DIR/setup"
 echo "chown -R $USER:users /home/$USER" >> "$DIR/setup"
 REPO="$(git remote show -n origin | grep "Fetch URL" | awk '{print $3}')"
-echo "su -c \"git clone \\\"$REPO\\\" /home/$USER/.vmtools\" $USER" >> "$DIR/setup"
-echo "su -c \"/home/$USER/.vmtools/install-base\" $USER" >> "$DIR/setup"
+echo "su -l -c \"git clone \\\"$REPO\\\" /home/$USER/.vmtools\" $USER" >> "$DIR/setup"
+echo "su -l -c \"/home/$USER/.vmtools/install-base\" $USER" >> "$DIR/setup"
 echo "chmod -R +x /home/$USER/Desktop" >> "$DIR/setup"
 
 # Run the Setup Script
