@@ -51,7 +51,7 @@ cleanup() {
 	eval 'umount $DIR 2>/dev/null'
 	eval 'loop_down "$LOOP" 2>/dev/null'
 	eval 'qemu-nbd -d "$DEV" >/dev/null 2>&1'
-	eval 'vboxmanage unregistervm "$VBOX" --delete >/dev/null 2>&1'
+	eval 'vboxmanage unregistervm "{8968673b-95a0-4875-8929-340a50a00a22}" --delete >/dev/null 2>&1'
 	eval 'rm -f "$DISK"'
 	eval 'rm -f "$DISK2"'
 	eval 'rm -rf "$DIR"'
