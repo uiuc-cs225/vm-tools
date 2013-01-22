@@ -4,7 +4,7 @@ NAME="UIUC Dev"
 HOST="uiuc-vm"
 
 # Usage
-if [ "$#" -le "2" ]; then
+if [ "$#" -lt "2" ]; then
 	echo "Usage: $0 <arch> <outfile>"
 	exit 1
 fi
