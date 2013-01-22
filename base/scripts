@@ -249,7 +249,7 @@ get_packages() {
 	TMP="$(mktemp -d)"
 	OLD="$(pwd)"
 	cd $TMP
-	URL="http://cs225.wkennington.com/pkgs/$1"
+	URL="http://cs225.wkennington.com/pkg/$1"
 	PKGS="$2"
 	ARCH="$(get_arch)"
 	for i in $PKGS; do
