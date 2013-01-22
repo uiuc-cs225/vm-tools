@@ -155,7 +155,7 @@ echo "::1 localhost localhost.uiuc" > "$DIR/etc/hosts"
 #echo "grub-mkconfig -o /boot/grub/grub.cfg" >> "$DIR/setup"
 
 # Install Syslinux
-echo "syslinux-install_update -i -m" >> "$DIR/setup"
+echo "syslinux-install_update -i" >> "$DIR/setup"
 echo "dd bs=440 conv=notrunc count=1 if=/usr/lib/syslinux/gptmbr.bin of=\"$LOOP\"" >> "$DIR/setup"
 echo "mv /etc/syslinux.cfg /boot/syslinux/syslinux.cfg" >> "$DIR/setup"
 
