@@ -126,7 +126,7 @@ BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem fin
 DEVEL="base-devel libpng gnuplot imagemagick gdb valgrind"
 EDITORS="gvim emacs gedit"
 NET="wget ntp subversion git ifplugd iptables"
-SYS="sudo openssh lzop grub-bios zsh mlocate sshpass"
+SYS="sudo openssh lzop gptfdisk syslinux zsh mlocate sshpass"
 X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit virtualbox-guest-modules virtualbox-guest-utils xf86-input-mouse xf86-input-keyboard gnome-themes-standard ttf-dejavu ttf-liberation"
 
 # Run Pacman to Install Packages
@@ -148,8 +148,12 @@ echo "::1 localhost localhost.uiuc" > "$DIR/etc/hosts"
 #genfstab -U "$DIR" >> "$DIR/etc/fstab"
 
 # Install Grub
-echo "grub-install --recheck --no-floppy \"$DEV\"" >> "$DIR/setup"
-echo "grub-mkconfig -o /boot/grub/grub.cfg" >> "$DIR/setup"
+#echo "grub-install --recheck --no-floppy \"$DEV\"" >> "$DIR/setup"
+#echo "grub-mkconfig -o /boot/grub/grub.cfg" >> "$DIR/setup"
+
+# Install Syslinux
+echo "syslinux-install_update -i -a -m" >> "$DIR/setup"
+echo "mv /etc/syslinux.cfg /boot/syslinux/syslinux.cfg" >> "$DIR/setup"
 
 # Setup Locale
 echo "locale-gen" >> "$DIR/setup"
