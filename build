@@ -3,10 +3,16 @@ USER="dev"
 NAME="UIUC Dev"
 HOST="uiuc-vm"
 
-#Usage
-if [ "$#" != "2" ]; then
+# Usage
+if [ "$#" -le "2" ]; then
 	echo "Usage: $0 <arch> <outfile>"
 	exit 1
+fi
+
+# Turn on Debug Messages
+OUT="/dev/null"
+if [ "$#" -ge "3" ]; then
+	OUT="&1"
 fi
 
 # Parse Architecture
@@ -33,7 +39,7 @@ if [ ! -x "$PACMAN" ]; then
 	exit 1
 fi
 PACKAGES="qemu-kvm virtualbox gptfdisk e2fsprogs arch-install-scripts"
-$PACMAN -Sy --needed --noconfirm $PACKAGES
+$PACMAN -Sy --needed --noconfirm $PACKAGES >"$OUT" 2>&1
 if [ "$?" -ne "0" ]; then
 	echo "Failed to install base dependencies"
 	exit 1
@@ -41,6 +47,7 @@ fi
 
 # Force Cleanup
 cleanup() {
+	echo "Cleaning Up"
 	eval 'umount $DIR/boot 2>/dev/null'
 	eval 'umount $DIR 2>/dev/null'
 	eval 'loop_down "$LOOP" 2>/dev/null'
@@ -87,17 +94,19 @@ if [ ! -b "$DEV" ]; then
 fi
 
 # Setup Partition Table
-sgdisk -z "$DEV"
-sgdisk -o "$DEV"
-sgdisk -n 1:2048:+1M "$DEV"
-sgdisk -t 1:EF02 "$DEV"
-sgdisk -n 2::+100M "$DEV"
-sgdisk -n 3::+4G "$DEV"
-sgdisk -n 4:: "$DEV"
+echo "Creating Partition Table"
+sgdisk -z "$DEV" >"$OUT" 2>&1
+sgdisk -o "$DEV" >"$OUT" 2>&1
+sgdisk -n 1:2048:+1M "$DEV" >"$OUT" 2>&1
+sgdisk -t 1:EF02 "$DEV" >"$OUT" 2>&1
+sgdisk -n 2::+100M "$DEV" >"$OUT" 2>&1
+sgdisk -n 3::+4G "$DEV" >"$OUT" 2>&1
+sgdisk -n 4:: "$DEV" >"$OUT" 2>&1
 
 # Make BIOS Bootable
-sgdisk -A 2:set:2 "$DEV"
+sgdisk -A 2:set:2 "$DEV" >"$OUT" 2>&1
 
+# Disk Operations
 BS="$(sudo gdisk -l "$DEV" | grep "Logical sector" | awk '{print $4}')"
 offset() {
 	echo $(expr $(sudo sgdisk "$DEV" -i "$1" | grep "First sector" | awk '{print $3}') \* $BS)
@@ -106,23 +115,25 @@ size() {
 	echo $(expr $(sudo sgdisk "$DEV" -i "$1"| grep size | awk '{print $3}') \* $BS)
 }
 loop_up() {
-	losetup -P -f --show "$DEV"
+	losetup -P -f --show "$DEV" >"$OUT" 2>&1
 }
 loop_down() {
 	sleep 1
-	losetup -d "$1"
+	losetup -d "$1" >"$OUT" 2>&1
 }
 
 # Format Disk
+echo "Formatting Paritions"
 LOOP="$(loop_up)"
-mkfs.ext2 -L boot "${LOOP}p2"
-mkswap -L swap "${LOOP}p3"
-mkfs.ext4 -L root "${LOOP}p4"
+mkfs.ext2 -L boot "${LOOP}p2" >"$OUT" 2>&1
+mkswap -L swap "${LOOP}p3" >"$OUT" 2>&1
+mkfs.ext4 -L root "${LOOP}p4" >"$OUT" 2>&1
 
-# Mount the disks
-mount "${LOOP}p4" "$DIR"
-mkdir "$DIR/boot"
-mount "${LOOP}p2" "$DIR/boot"
+# Mount the disk
+echo "Mounting Paritions"
+mount "${LOOP}p4" "$DIR" >"$OUT" 2>&1
+mkdir "$DIR/boot" >"$OUT" 2>&1
+mount "${LOOP}p2" "$DIR/boot" >"$OUT" 2>&1
 
 # Setup Package List
 BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils less licenses man-db man-pages nano netcfg pacman perl procps-ng psmisc sed shadow sysfsutils systemd systemd-sysvcompat tar texinfo usbutils util-linux vi which"
@@ -133,11 +144,13 @@ SYS="sudo openssh lzop syslinux zsh mlocate sshpass"
 X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit virtualbox-guest-modules virtualbox-guest-utils xf86-input-mouse xf86-input-keyboard gnome-themes-standard ttf-dejavu ttf-liberation"
 
 # Run Pacman to Install Packages
-pacstrap -c "$DIR" $BASE $DEVEL $EDITORS $NET $SYS $X11 --arch "$ARCH" --config "$CONF/sys/pacman.conf"
+echo "Installing Packages"
+pacstrap -c "$DIR" $BASE $DEVEL $EDITORS $NET $SYS $X11 --arch "$ARCH" --config "$CONF/sys/pacman.conf" >"$OUT" 2>&1
 
 # Copy configuration
-cp -r "$CONF/sys/etc" "$DIR"
-cp -r "$CONF/sys/home" "$DIR/home/$USER"
+echo "Configuring System"
+cp -r "$CONF/sys/etc" "$DIR" 2>/dev/null
+cp -r "$CONF/sys/home" "$DIR/home/$USER" 2>/dev/null
 
 # Setup Hostname
 echo "$HOST" > "$DIR/etc/hostname"
@@ -191,13 +204,12 @@ echo "su -c \"/home/$USER/.vmtools/install-base\" $USER" >> "$DIR/setup"
 echo "chmod -R +x /home/$USER/Desktop" >> "$DIR/setup"
 
 # Run the Setup Script
-arch-chroot "$DIR" "/bin/sh" "/setup"
+arch-chroot "$DIR" "/bin/sh" "/setup" >"$OUT" 2>&1
 shred "$DIR/setup"
-
-rm "$DIR/setup"
+rm -f "$DIR/setup"
 
 # Unmount and finalize QCow Image
-echo "Unmounting Image"
+echo "Unmounting and Syncing Partitions"
 sync
 umount $DIR/boot 2>/dev/null
 umount $DIR 2>/dev/null
@@ -209,7 +221,7 @@ sync
 # Convert to a Virtualbox Image
 echo "Converting Image to Virtualbox Format"
 DISK2="$2.vdi"
-qemu-img convert -f qcow2 -O vdi "$DISK" "$DISK2"
+qemu-img convert -f qcow2 -O vdi "$DISK" "$DISK2" -p
 
 # Create the Virtualbox Machine
 echo "Building the Virtualbox OVA"
