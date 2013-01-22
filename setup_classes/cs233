@@ -5,8 +5,12 @@ if [ "$?" -ne "0" ]; then
 	return 1
 fi
 
-echo "Checking out your $2 folder..." >&2
-if [ ! -d "$HOME/svn/cs398" ]; then
-	subversion_checkout "cs398" "cs398" "0" >/dev/null
-	return $?
+echo "Checking out your cs233 folder..." >&2
+if [ ! -d "$HOME/svn/cs233" ]; then
+	subversion_checkout "cs398" "cs233" "0" >/dev/null
+	if [ "$?" -ne "0" ]; then
+		return $?
+	fi
 fi
+echo "Checked out the folder into ~/svn/cs233" >&2
+return 0
