@@ -66,9 +66,8 @@ netid_prompt() {
 }
 
 subversion_checkout() {
-	echo "Checking out your $1 folder..." >&2
 	ERROR=1000
-	DIR="$HOME/svn/$1"
+	DIR="$HOME/svn/$2"
 	if [ "$NETID" = "" ]; then
 		NETID="$(get_netid)"
 	fi
@@ -78,7 +77,7 @@ subversion_checkout() {
 			RES="authorization failed"
 		else
 			URL="https://subversion.ews.illinois.edu/svn/$(get_semester)$(get_year)-$1/$NETID"
-			if [ "$2" -eq "1" ]; then
+			if [ "$3" = "1" ]; then
 				URL="https://subversion.ews.illinois.edu/svn/$(get_semester)$(get_year)-$1"
 			fi
 			if [ "$PASS" = "" ]; then

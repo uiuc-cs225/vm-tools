@@ -1,14 +1,12 @@
 #!/bin/bash
-ARCH="$(get_arch)"
-
 echo "Installing Packages..."
 get_packages "cs233" "gtkwave-3.3.40-1 iverilog-0.9.6-1"
 if [ "$?" -ne "0" ]; then
 	return 1
 fi
 
-#Don't checkout subversion twice
+echo "Checking out your $2 folder..." >&2
 if [ ! -d "$HOME/svn/cs398" ]; then
-	subversion_checkout "cs398" >/dev/null
+	subversion_checkout "cs398" "cs398" "0" >/dev/null
 	return $?
 fi
