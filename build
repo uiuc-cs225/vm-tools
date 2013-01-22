@@ -95,6 +95,9 @@ sgdisk -n 2::+100M "$DEV"
 sgdisk -n 3::+4G "$DEV"
 sgdisk -n 4:: "$DEV"
 
+# Make BIOS Bootable
+sgdisk -A 2:set:2 "$DEV"
+
 BS="$(sudo gdisk -l "$DEV" | grep "Logical sector" | awk '{print $4}')"
 offset() {
 	echo $(expr $(sudo sgdisk "$DEV" -i "$1" | grep "First sector" | awk '{print $3}') \* $BS)
@@ -126,7 +129,7 @@ BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem fin
 DEVEL="base-devel libpng gnuplot imagemagick gdb valgrind"
 EDITORS="gvim emacs gedit"
 NET="wget ntp subversion git ifplugd iptables"
-SYS="sudo openssh lzop gptfdisk syslinux zsh mlocate sshpass"
+SYS="sudo openssh lzop syslinux zsh mlocate sshpass"
 X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit virtualbox-guest-modules virtualbox-guest-utils xf86-input-mouse xf86-input-keyboard gnome-themes-standard ttf-dejavu ttf-liberation"
 
 # Run Pacman to Install Packages
@@ -152,7 +155,8 @@ echo "::1 localhost localhost.uiuc" > "$DIR/etc/hosts"
 #echo "grub-mkconfig -o /boot/grub/grub.cfg" >> "$DIR/setup"
 
 # Install Syslinux
-echo "syslinux-install_update -i -a -m" >> "$DIR/setup"
+echo "syslinux-install_update -i -m" >> "$DIR/setup"
+echo "dd bs=440 conv=notrunc count=1 if=/usr/lib/syslinux/gptmbr.bin of=\"$LOOP\"" >> "$DIR/setup"
 echo "mv /etc/syslinux.cfg /boot/syslinux/syslinux.cfg" >> "$DIR/setup"
 
 # Setup Locale
