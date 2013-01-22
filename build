@@ -5,14 +5,14 @@ HOST="uiuc-vm"
 
 # Usage
 if [ "$#" -lt "2" ]; then
-	echo "Usage: $0 <arch> <outfile>"
+	echo "Usage: $0 arch outfile [debug-file]"
 	exit 1
 fi
 
 # Turn on Debug Messages
 OUT="/dev/null"
 if [ "$#" -ge "3" ]; then
-	OUT="&1"
+	OUT="$3"
 fi
 
 # Parse Architecture
@@ -25,7 +25,6 @@ elif [[ "$ARCH" != "x86_64" && "$ARCH" != "i686" ]]; then
 	echo "Invalid Architecture $ARCH."
 	exit 1
 fi
-
 # Must run as root
 if [ "$(id -u)" -ne "0" ]; then
 	echo "You must be running as root"
@@ -39,7 +38,7 @@ if [ ! -x "$PACMAN" ]; then
 	exit 1
 fi
 PACKAGES="qemu-kvm virtualbox gptfdisk e2fsprogs arch-install-scripts"
-$PACMAN -Sy --needed --noconfirm $PACKAGES >"$OUT" 2>&1
+$PACMAN -Sy --needed --noconfirm $PACKAGES >>$OUT 2>&1
 if [ "$?" -ne "0" ]; then
 	echo "Failed to install base dependencies"
 	exit 1
@@ -70,7 +69,7 @@ DISK="$2.tmp"
 if [ -f "$DISK" ]; then
 	rm -f "$DISK"
 fi
-qemu-img create -f qcow2 "$DISK" 100G >"$OUT" 2>&1
+qemu-img create -f qcow2 "$DISK" 100G >>$OUT 2>&1
 
 # Mount the Disk
 modprobe nbd
@@ -96,16 +95,16 @@ fi
 
 # Setup Partition Table
 echo "Creating Partition Table"
-sgdisk -z "$DEV" >"$OUT" 2>&1
-sgdisk -o "$DEV" >"$OUT" 2>&1
-sgdisk -n 1:2048:+1M "$DEV" >"$OUT" 2>&1
-sgdisk -t 1:EF02 "$DEV" >"$OUT" 2>&1
-sgdisk -n 2::+100M "$DEV" >"$OUT" 2>&1
-sgdisk -n 3::+4G "$DEV" >"$OUT" 2>&1
-sgdisk -n 4:: "$DEV" >"$OUT" 2>&1
+sgdisk -z "$DEV" >>$OUT 2>&1
+sgdisk -o "$DEV" >>$OUT 2>&1
+sgdisk -n 1:2048:+1M "$DEV" >>$OUT 2>&1
+sgdisk -t 1:EF02 "$DEV" >>$OUT 2>&1
+sgdisk -n 2::+100M "$DEV" >>$OUT 2>&1
+sgdisk -n 3::+4G "$DEV" >>$OUT 2>&1
+sgdisk -n 4:: "$DEV" >>$OUT 2>&1
 
 # Make BIOS Bootable
-sgdisk -A 2:set:2 "$DEV" >"$OUT" 2>&1
+sgdisk -A 2:set:2 "$DEV" >>$OUT 2>&1
 
 # Disk Operations
 BS="$(sudo gdisk -l "$DEV" | grep "Logical sector" | awk '{print $4}')"
@@ -116,25 +115,25 @@ size() {
 	echo $(expr $(sudo sgdisk "$DEV" -i "$1"| grep size | awk '{print $3}') \* $BS)
 }
 loop_up() {
-	losetup -P -f --show "$DEV" >"$OUT" 2>&1
+	losetup -P -f --show "$DEV" 2>>$OUT
 }
 loop_down() {
 	sleep 1
-	losetup -d "$1" >"$OUT" 2>&1
+	losetup -d "$1" >>$OUT 2>&1
 }
 
 # Format Disk
 echo "Formatting Paritions"
 LOOP="$(loop_up)"
-mkfs.ext2 -L boot "${LOOP}p2" >"$OUT" 2>&1
-mkswap -L swap "${LOOP}p3" >"$OUT" 2>&1
-mkfs.ext4 -L root "${LOOP}p4" >"$OUT" 2>&1
+mkfs.ext2 -L boot "${LOOP}p2" >>$OUT 2>&1
+mkswap -L swap "${LOOP}p3" >>$OUT 2>&1
+mkfs.ext4 -L root "${LOOP}p4" >>$OUT 2>&1
 
 # Mount the disk
 echo "Mounting Paritions"
-mount "${LOOP}p4" "$DIR" >"$OUT" 2>&1
-mkdir "$DIR/boot" >"$OUT" 2>&1
-mount "${LOOP}p2" "$DIR/boot" >"$OUT" 2>&1
+mount "${LOOP}p4" "$DIR" >>$OUT 2>&1
+mkdir "$DIR/boot" >>$OUT 2>&1
+mount "${LOOP}p2" "$DIR/boot" >>$OUT 2>&1
 
 # Setup Package List
 BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils less licenses man-db man-pages nano netcfg pacman perl procps-ng psmisc sed shadow sysfsutils systemd systemd-sysvcompat tar texinfo usbutils util-linux vi which"
@@ -146,7 +145,7 @@ X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit v
 
 # Run Pacman to Install Packages
 echo "Installing Packages"
-pacstrap -c "$DIR" $BASE $DEVEL $EDITORS $NET $SYS $X11 --arch "$ARCH" --config "$CONF/sys/pacman.conf" >"$OUT" 2>&1
+pacstrap -c "$DIR" $BASE $DEVEL $EDITORS $NET $SYS $X11 --arch "$ARCH" --config "$CONF/sys/pacman.conf" >>$OUT 2>&1
 
 # Copy configuration
 echo "Configuring System"
@@ -205,7 +204,7 @@ echo "su -c \"/home/$USER/.vmtools/install-base\" $USER" >> "$DIR/setup"
 echo "chmod -R +x /home/$USER/Desktop" >> "$DIR/setup"
 
 # Run the Setup Script
-arch-chroot "$DIR" "/bin/sh" "/setup" >"$OUT" 2>&1
+arch-chroot "$DIR" "/bin/sh" "/setup" >>$OUT 2>&1
 shred "$DIR/setup"
 rm -f "$DIR/setup"
 
@@ -215,23 +214,23 @@ sync
 umount $DIR/boot 2>/dev/null
 umount $DIR 2>/dev/null
 sync
-loop_down "$LOOP" 2>/dev/null
+loop_down "$LOOP"
 qemu-nbd -d "$DEV" >/dev/null 2>&1
 sync
 
 # Convert to a Virtualbox Image
 echo "Converting Image to Virtualbox Format"
 DISK2="$2.vdi"
-qemu-img convert -f qcow2 -O vdi "$DISK" "$DISK2" -p
+qemu-img convert -f qcow2 -O vdi "$DISK" "$DISK2" -p 2>>"$OUT"
 
 # Create the Virtualbox Machine
 echo "Building the Virtualbox OVA"
 VBOX_ORIG="$CONF/build_files/vm.vbox"
 VBOX="$DIR/vm.vbox"
 cp "$VBOX_ORIG" "$VBOX"
-vboxmanage registervm "$VBOX"
-vboxmanage storageattach "{8968673b-95a0-4875-8929-340a50a00a22}" --storagectl "SATA Controller" --port 0 --type hdd --medium "$(pwd)/$DISK2"
-vboxmanage export "{8968673b-95a0-4875-8929-340a50a00a22}" --output "$(pwd)/$2.ova" --vsys 0 --product "UIUC VM" --producturl "https://wiki.engr.illinois.edu/display/cs225/Virtual+Machine" --vendor "CS 225 Course Staff" --vendorurl "https://wiki.engr.illinois.edu/display/cs225/Home" --version "1.0"
+vboxmanage registervm "$VBOX" >>$OUT 2>&1
+vboxmanage storageattach "{8968673b-95a0-4875-8929-340a50a00a22}" --storagectl "SATA Controller" --port 0 --type hdd --medium "$(pwd)/$DISK2" >>$OUT 2>&1
+vboxmanage export "{8968673b-95a0-4875-8929-340a50a00a22}" --output "$(pwd)/$2.ova" --vsys 0 --product "UIUC VM" --producturl "https://wiki.engr.illinois.edu/display/cs225/Virtual+Machine" --vendor "CS 225 Course Staff" --vendorurl "https://wiki.engr.illinois.edu/display/cs225/Home" --version "1.0" 2>>$OUT
 
 # Cleanup
 cleanup 0
