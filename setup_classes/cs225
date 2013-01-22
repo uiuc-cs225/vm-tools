@@ -2,6 +2,14 @@
 #Don't checkout subversion twice
 if [ ! -d "$HOME/svn/cs225" ]; then
 	subversion_checkout "cs225" >/dev/null
-	return $?
+	if [ "$?" -ne "0" ]; then
+		return $?
+	fi
+fi
+if [ ! -d "$HOME/svn/cs225/monad" ]; then
+	subversion_checkout "cs225/monad" "1" >/dev/null
+	if [ "$?" -ne "0" ]; then
+		return $?
+	fi
 fi
 return 0
