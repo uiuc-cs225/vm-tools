@@ -45,7 +45,7 @@ cleanup() {
 	eval 'umount $DIR 2>/dev/null'
 	eval 'loop_down "$LOOP" 2>/dev/null'
 	eval 'qemu-nbd -d "$DEV" >/dev/null 2>&1'
-	eval 'vboxmanage unregistervm "{8968673b-95a0-4875-8929-340a50a00a22}" --delete >/dev/null 2>&1'
+	eval 'vboxmanage unregistervm "$VBOX" --delete >/dev/null 2>&1'
 	eval 'rm -f "$DISK"'
 	eval 'rm -f "$DISK2"'
 	eval 'rm -rf "$DIR"'
@@ -145,10 +145,10 @@ echo "::1 localhost localhost.uiuc" > "$DIR/etc/hosts"
 #echo "ln -s /usr/bin/vim /usr/bin/vi" >> "$DIR/setup"
 
 # Generate the Fstab
-genfstab -U "$DIR" >> "$DIR/etc/fstab"
+#genfstab -U "$DIR" >> "$DIR/etc/fstab"
 
 # Install Grub
-echo "grub-install --boot-directory=/boot --recheck --no-floppy \"$DEV\"" >> "$DIR/setup"
+echo "grub-install --boot-directory=/boot --recheck --no-floppy \"$LOOP\"" >> "$DIR/setup"
 echo "grub-mkconfig -o /boot/grub/grub.cfg" >> "$DIR/setup"
 
 # Setup Locale
@@ -190,10 +190,13 @@ rm "$DIR/setup"
 
 # Unmount and finalize QCow Image
 echo "Unmounting Image"
+sync
 umount $DIR/boot 2>/dev/null
 umount $DIR 2>/dev/null
+sync
 loop_down "$LOOP" 2>/dev/null
 qemu-nbd -d "$DEV" >/dev/null 2>&1
+sync
 
 # Convert to a Virtualbox Image
 echo "Converting Image to Virtualbox Format"

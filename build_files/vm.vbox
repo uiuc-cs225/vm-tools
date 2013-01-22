@@ -9,7 +9,6 @@
   <Machine uuid="{8968673b-95a0-4875-8929-340a50a00a22}" name="UIUC VM 64" OSType="ArchLinux_64" snapshotFolder="Snapshots" lastStateChange="2013-01-18T08:15:54Z">
     <MediaRegistry>
       <HardDisks>
-        <HardDisk uuid="{cb12252f-d351-41b8-b795-cc93855fa189}" location="/home/william/git/vm-tools/vm64.vdi" format="VDI" type="Normal"/>
       </HardDisks>
       <DVDImages/>
       <FloppyImages/>
