@@ -228,6 +228,7 @@ echo "Building the Virtualbox OVA"
 VBOX_ORIG="$CONF/build_files/vm.vbox"
 VBOX="$DIR/vm.vbox"
 cp "$VBOX_ORIG" "$VBOX"
+vboxmanage unregistervm "{8968673b-95a0-4875-8929-340a50a00a22}" >/dev/null 2>&1
 vboxmanage registervm "$VBOX" >>$OUT 2>&1
 vboxmanage storageattach "{8968673b-95a0-4875-8929-340a50a00a22}" --storagectl "SATA Controller" --port 0 --type hdd --medium "$(pwd)/$DISK2" >>$OUT 2>&1
 vboxmanage export "{8968673b-95a0-4875-8929-340a50a00a22}" --output "$(pwd)/$2.ova" --vsys 0 --product "UIUC VM" --producturl "https://wiki.engr.illinois.edu/display/cs225/Virtual+Machine" --vendor "CS 225 Course Staff" --vendorurl "https://wiki.engr.illinois.edu/display/cs225/Home" --version "1.0" 2>>$OUT
