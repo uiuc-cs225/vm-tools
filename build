@@ -65,11 +65,12 @@ CONF="$(dirname "$(readlink -f "$0")")"
 DIR="$(mktemp -d)"
 
 # Create the virtual disk image
+echo "Creating Image File"
 DISK="$2.tmp"
 if [ -f "$DISK" ]; then
 	rm -f "$DISK"
 fi
-qemu-img create -f qcow2 "$DISK" 100G
+qemu-img create -f qcow2 "$DISK" 100G >"$OUT" 2>&1
 
 # Mount the Disk
 modprobe nbd
