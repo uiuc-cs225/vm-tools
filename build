@@ -148,7 +148,7 @@ echo "::1 localhost localhost.uiuc" > "$DIR/etc/hosts"
 #genfstab -U "$DIR" >> "$DIR/etc/fstab"
 
 # Install Grub
-echo "grub-install --force-file-id --recheck --no-floppy \"$DEV\"" >> "$DIR/setup"
+echo "grub-install --recheck --no-floppy \"$DEV\"" >> "$DIR/setup"
 echo "grub-mkconfig -o /boot/grub/grub.cfg" >> "$DIR/setup"
 
 # Setup Locale
