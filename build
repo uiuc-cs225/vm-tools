@@ -142,7 +142,7 @@ mount "${LOOP}p2" "$DIR/boot" >>$OUT 2>&1
 
 # Setup Package List
 BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils less licenses man-db man-pages nano netcfg pacman perl procps-ng psmisc sed shadow sysfsutils systemd systemd-sysvcompat tar texinfo usbutils util-linux vi which"
-DEVEL="base-devel libpng gnuplot imagemagick gdb valgrind"
+DEVEL="base-devel libpng gnuplot imagemagick graphviz gdb valgrind"
 EDITORS="gvim emacs gedit"
 NET="wget ntp subversion git ifplugd iptables"
 SYS="sudo openssh lzop syslinux zsh mlocate sshpass"
