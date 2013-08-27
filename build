@@ -30,6 +30,7 @@ elif [[ "$ARCH" != "x86_64" && "$ARCH" != "i686" ]]; then
 	echo "Invalid Architecture $ARCH."
 	exit 1
 fi
+
 # Must run as root
 if [ "$(id -u)" -ne "0" ]; then
 	echo "You must be running as root"
@@ -49,7 +50,7 @@ if [ "$?" -ne "0" ]; then
 	exit 1
 fi
 
-# Force Cleanup
+# Setup Cleanup Hook
 cleanup() {
 	echo "Cleaning Up"
 	eval 'umount $DIR/boot 2>/dev/null'
@@ -71,9 +72,7 @@ DIR="$(mktemp -d)"
 # Create the virtual disk image
 echo "Creating Image File"
 DISK="$2.tmp"
-if [ -f "$DISK" ]; then
-	rm -f "$DISK"
-fi
+[ -f "$DISK" ] && rm -f "$DISK"
 qemu-img create -f qcow2 "$DISK" 100G >>$OUT 2>&1
 
 # Mount the Disk
@@ -82,9 +81,7 @@ FILES="$(ls /dev | grep nbd)"
 for FILE in $FILES; do
 	DEV="/dev/$FILE"
 	qemu-nbd -n -c "$DEV" "$DISK" >/dev/null 2>&1
-	if [ "$?" -eq "0" ]; then
-		break
-	fi
+	[ "$?" -eq "0" ] && break
 	DEV=""
 done
 if [ "$DEV" = "" ]; then
@@ -104,12 +101,11 @@ sgdisk -z "$DEV" >>$OUT 2>&1
 sgdisk -o "$DEV" >>$OUT 2>&1
 sgdisk -n 1:2048:+1M "$DEV" >>$OUT 2>&1
 sgdisk -t 1:EF02 "$DEV" >>$OUT 2>&1
-sgdisk -n 2::+100M "$DEV" >>$OUT 2>&1
-sgdisk -n 3::+4G "$DEV" >>$OUT 2>&1
-sgdisk -n 4:: "$DEV" >>$OUT 2>&1
+sgdisk -n 2::+4G "$DEV" >>$OUT 2>&1
+sgdisk -n 3:: "$DEV" >>$OUT 2>&1
 
 # Make BIOS Bootable
-sgdisk -A 2:set:2 "$DEV" >>$OUT 2>&1
+sgdisk -A 3:set:2 "$DEV" >>$OUT 2>&1
 
 # Disk Operations
 BS="$(sudo gdisk -l "$DEV" | grep "Logical sector" | awk '{print $4}')"
@@ -130,22 +126,19 @@ loop_down() {
 # Format Disk
 echo "Formatting Paritions"
 LOOP="$(loop_up)"
-mkfs.ext2 -L boot "${LOOP}p2" >>$OUT 2>&1
-mkswap -L swap "${LOOP}p3" >>$OUT 2>&1
-mkfs.ext4 -L root "${LOOP}p4" >>$OUT 2>&1
+mkswap -L swap "${LOOP}p2" >>$OUT 2>&1
+mkfs.ext4 -L root "${LOOP}p3" >>$OUT 2>&1
 
 # Mount the disk
 echo "Mounting Paritions"
-mount "${LOOP}p4" "$DIR" >>$OUT 2>&1
-mkdir "$DIR/boot" >>$OUT 2>&1
-mount "${LOOP}p2" "$DIR/boot" >>$OUT 2>&1
+mount "${LOOP}p3" "$DIR" >>$OUT 2>&1
 
 # Setup Package List
-BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils less licenses man-db man-pages nano netcfg pacman perl procps-ng psmisc sed shadow sysfsutils systemd systemd-sysvcompat tar texinfo usbutils util-linux vi which"
+BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils less licenses linux logrotate man-db man-pages netctl pacman procps-ng psmisc sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which"
 DEVEL="base-devel libpng gnuplot imagemagick graphviz gdb valgrind"
 EDITORS="gvim emacs gedit"
 NET="wget ntp subversion git ifplugd iptables"
-SYS="sudo openssh lzop syslinux zsh mlocate sshpass"
+SYS="sudo openssh lzop grub zsh mlocate sshpass"
 X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit virtualbox-guest-modules virtualbox-guest-utils xf86-input-mouse xf86-input-keyboard gnome-themes-standard ttf-dejavu ttf-liberation"
 
 # Run Pacman to Install Packages
@@ -169,13 +162,8 @@ echo "::1 localhost localhost.uiuc" > "$DIR/etc/hosts"
 #genfstab -U "$DIR" >> "$DIR/etc/fstab"
 
 # Install Grub
-#echo "grub-install --recheck --no-floppy \"$DEV\"" >> "$DIR/setup"
-#echo "grub-mkconfig -o /boot/grub/grub.cfg" >> "$DIR/setup"
-
-# Install Syslinux
-echo "syslinux-install_update -i" >> "$DIR/setup"
-echo "dd bs=440 conv=notrunc count=1 if=/usr/lib/syslinux/gptmbr.bin of=\"$LOOP\"" >> "$DIR/setup"
-echo "mv /etc/syslinux.cfg /boot/syslinux/syslinux.cfg" >> "$DIR/setup"
+echo "grub-install --recheck --no-floppy \"$DEV\"" >> "$DIR/setup"
+echo "grub-mkconfig -o /boot/grub/grub.cfg" >> "$DIR/setup"
 
 # Setup Locale
 echo "locale-gen" >> "$DIR/setup"
@@ -185,7 +173,7 @@ echo "mkinitcpio -p linux" >> "$DIR/setup"
 
 # Setup Systemd Services
 echo "systemctl enable cronie.service" >> "$DIR/setup"
-echo "systemctl enable net-auto-wired.service" >> "$DIR/setup"
+echo "systemctl enable netctl-ifplugd@enxdeadbeefcafe.service" >> "$DIR/setup"
 echo "systemctl enable ntpd.service" >> "$DIR/setup"
 echo "systemctl enable slim.service" >> "$DIR/setup"
 echo "systemctl enable sshd.service" >> "$DIR/setup"

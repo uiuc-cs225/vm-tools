@@ -1,3 +1,2 @@
-/dev/sda4	/		ext4	rw,relatime,data=ordered	0 1
-/dev/sda2	/boot	ext2	rw,relatime					0 2
-/dev/sda3	none	swap	defaults					0 0
+/dev/disk/by-label/root	/		ext4	rw,noatime,data=ordered 	0 1
+/dev/disk/by-label/swap	none	swap	defaults					0 0

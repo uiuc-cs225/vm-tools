@@ -1,8 +1,0 @@
-CONNECTION='ethernet'
-DESCRIPTION='A basic dhcp ethernet connection using iproute'
-INTERFACE='enxdeadbeefcafe'
-IP='dhcp'
-## for DHCPv6
-#IP6='dhcp'
-## for IPv6 autoconfiguration
-#IP6='stateless'
