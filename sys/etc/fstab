@@ -1,2 +1,2 @@
-/dev/disk/by-label/root	/		ext4	rw,noatime,data=ordered 	0 1
-/dev/disk/by-label/swap	none	swap	defaults					0 0
+LABEL=root	/		ext4	rw,noatime,data=ordered 	0 1
+LABEL=swap	none	swap	defaults					0 0
