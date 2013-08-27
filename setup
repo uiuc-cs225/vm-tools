@@ -1,4 +1,0 @@
-#!/bin/bash
-CONF="$(dirname "$(readlink -f "$0")")"
-source $CONF/base/scripts
-setup $@

@@ -1,7 +1,0 @@
-#GET NEW CONFIG STUFF
-$(dirname $(readlink -f ~/.zprofile))/update-git
-
-#CUSTOM ENHANCEMENTS
-if [ -f ~/.zprofile.local ]; then
-	. ~/.zprofile.local
-fi

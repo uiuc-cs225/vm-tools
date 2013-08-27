@@ -163,13 +163,13 @@ X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit v
 
 # Run Pacman to Install Packages
 echo "Installing Packages"
-pacstrap -c "$DIR" $BASE $DEVEL $EDITORS $NET $SYS $X11 --arch "$ARCH" --config "$CONF/sys/pacman.conf" >>$OUT 2>&1
+pacstrap -c "$DIR" $BASE $DEVEL $EDITORS $NET $SYS $X11 --arch "$ARCH" >>$OUT 2>&1
 error "Failed to install pacman packages onto new root"
 
 # Copy configuration
 echo "Configuring System"
-cp -r "$CONF/sys/etc" "$DIR" 2>/dev/null
-cp -r "$CONF/sys/home" "$DIR/home/$USER" 2>/dev/null
+cp -r "$CONF/etc" "$DIR" 2>/dev/null
+cp -r "$CONF/home" "$DIR/home/$USER" 2>/dev/null
 
 # Setup Hostname
 echo "$HOST" > "$DIR/etc/hostname"
@@ -234,7 +234,7 @@ error "Failed to convert disk to vdi"
 
 # Create the Virtualbox Machine
 echo "Building the Virtualbox OVA"
-VBOX_ORIG="$CONF/build_files/vm.vbox"
+VBOX_ORIG="$CONF/vm.vbox"
 VBOX="$DIR/vm.vbox"
 cp "$VBOX_ORIG" "$VBOX" >/dev/null 2>&1
 sed -i "s/{OSTYPE}/$OS/g" "$VBOX"
@@ -243,6 +243,8 @@ vboxmanage unregistervm "{8968673b-95a0-4875-8929-340a50a00a22}" >/dev/null 2>&1
 vboxmanage registervm "$VBOX" >>$OUT 2>&1
 vboxmanage storageattach "{8968673b-95a0-4875-8929-340a50a00a22}" --storagectl "SATA Controller" --port 0 --type hdd --medium "$(pwd)/$DISK2" >>$OUT 2>&1
 vboxmanage export "{8968673b-95a0-4875-8929-340a50a00a22}" --output "$(pwd)/$2.ova" --vsys 0 --product "UIUC VM" --producturl "https://wiki.engr.illinois.edu/display/cs225/Virtual+Machine" --vendor "CS 225 Course Staff" --vendorurl "https://wiki.engr.illinois.edu/display/cs225/Home" --version "1.0" >>$OUT 2>&1
+
+# Also pull the packages for the classes
 
 # Cleanup
 cleanup 0
