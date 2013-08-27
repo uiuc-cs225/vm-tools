@@ -43,7 +43,7 @@ if [ ! -x "$PACMAN" ]; then
 	echo "Not on an archlinux system"
 	exit 1
 fi
-PACKAGES="qemu-kvm virtualbox gptfdisk e2fsprogs arch-install-scripts"
+PACKAGES="qemu virtualbox gptfdisk e2fsprogs arch-install-scripts"
 $PACMAN -Sy --needed --noconfirm $PACKAGES >>$OUT 2>&1
 if [ "$?" -ne "0" ]; then
 	echo "Failed to install base dependencies"
