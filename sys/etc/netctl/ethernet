@@ -1,5 +1,5 @@
 Description='A basic dhcp ethernet connection'
-Interface=enxdeadbeefcafe
+Interface=eth0
 Connection=ethernet
 IP=dhcp
 ## for DHCPv6

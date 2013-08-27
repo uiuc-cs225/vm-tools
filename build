@@ -65,6 +65,14 @@ cleanup() {
 }
 trap 'cleanup 1' INT QUIT
 
+# Error handler
+error() {
+    if [ "$?" -ne "0" ]; then
+        echo "$1"
+        cleanup 1
+    fi
+}
+
 # Setup Temp
 CONF="$(dirname "$(readlink -f "$0")")"
 DIR="$(mktemp -d)"
@@ -74,9 +82,11 @@ echo "Creating Image File"
 DISK="$2.tmp"
 [ -f "$DISK" ] && rm -f "$DISK"
 qemu-img create -f qcow2 "$DISK" 100G >>$OUT 2>&1
+error "Failed to create image $DISK"
 
 # Mount the Disk
 modprobe nbd
+error "Failed to load the network block device module"
 FILES="$(ls /dev | grep nbd)"
 for FILE in $FILES; do
 	DEV="/dev/$FILE"
@@ -98,14 +108,21 @@ fi
 # Setup Partition Table
 echo "Creating Partition Table"
 sgdisk -z "$DEV" >>$OUT 2>&1
+error "Failed to repartition $DEV"
 sgdisk -o "$DEV" >>$OUT 2>&1
+error "Failed to repartition $DEV"
 sgdisk -n 1:2048:+1M "$DEV" >>$OUT 2>&1
+error "Failed to create bootcode partition on $DEV"
 sgdisk -t 1:EF02 "$DEV" >>$OUT 2>&1
+error "Failed to label bootcode partition on $DEV"
 sgdisk -n 2::+4G "$DEV" >>$OUT 2>&1
+error "Failed to create swap partition on $DEV"
 sgdisk -n 3:: "$DEV" >>$OUT 2>&1
+error "Failed to create root partition on $DEV"
 
 # Make BIOS Bootable
 sgdisk -A 3:set:2 "$DEV" >>$OUT 2>&1
+error "Failed to make root bootable on $DEV"
 
 # Disk Operations
 BS="$(sudo gdisk -l "$DEV" | grep "Logical sector" | awk '{print $4}')"
@@ -127,11 +144,14 @@ loop_down() {
 echo "Formatting Paritions"
 LOOP="$(loop_up)"
 mkswap -L swap "${LOOP}p2" >>$OUT 2>&1
+error "Failed to format swap on ${LOOP}p2"
 mkfs.ext4 -L root "${LOOP}p3" >>$OUT 2>&1
+error "Failed to format root on ${LOOP}p3"
 
 # Mount the disk
 echo "Mounting Paritions"
 mount "${LOOP}p3" "$DIR" >>$OUT 2>&1
+error "Failed to mount root on ${LOOP}p3"
 
 # Setup Package List
 BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils less licenses linux logrotate man-db man-pages netctl pacman procps-ng psmisc sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which"
@@ -144,6 +164,7 @@ X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit v
 # Run Pacman to Install Packages
 echo "Installing Packages"
 pacstrap -c "$DIR" $BASE $DEVEL $EDITORS $NET $SYS $X11 --arch "$ARCH" --config "$CONF/sys/pacman.conf" >>$OUT 2>&1
+error "Failed to install pacman packages onto new root"
 
 # Copy configuration
 echo "Configuring System"
@@ -154,12 +175,6 @@ cp -r "$CONF/sys/home" "$DIR/home/$USER" 2>/dev/null
 echo "$HOST" > "$DIR/etc/hostname"
 echo "127.0.0.1 localhost localhost.uiuc" > "$DIR/etc/hosts"
 echo "::1 localhost localhost.uiuc" > "$DIR/etc/hosts"
-
-# Link Vi if replacing
-#echo "ln -s /usr/bin/vim /usr/bin/vi" >> "$DIR/setup"
-
-# Generate the Fstab
-#genfstab -U "$DIR" >> "$DIR/etc/fstab"
 
 # Install Grub
 echo "grub-install --recheck --no-floppy \"$DEV\"" >> "$DIR/setup"
@@ -173,7 +188,7 @@ echo "mkinitcpio -p linux" >> "$DIR/setup"
 
 # Setup Systemd Services
 echo "systemctl enable cronie.service" >> "$DIR/setup"
-echo "systemctl enable netctl-ifplugd@enxdeadbeefcafe.service" >> "$DIR/setup"
+echo "systemctl enable netctl-ifplugd@eth0.service" >> "$DIR/setup"
 echo "systemctl enable ntpd.service" >> "$DIR/setup"
 echo "systemctl enable slim.service" >> "$DIR/setup"
 echo "systemctl enable sshd.service" >> "$DIR/setup"
@@ -215,6 +230,7 @@ sync
 echo "Converting Image to Virtualbox Format"
 DISK2="$2.vdi"
 qemu-img convert -f qcow2 -O vdi "$DISK" "$DISK2" >>$OUT 2>&1
+error "Failed to convert disk to vdi"
 
 # Create the Virtualbox Machine
 echo "Building the Virtualbox OVA"
