@@ -176,7 +176,7 @@ cp -r "$CONF/etc" "$DIR" 2>/dev/null
 cp -r "$CONF/home" "$DIR/home/$USER" 2>/dev/null
 
 # Update pacman.conf
-sed -i "s/<package-url>/$(echo "$URL" | sed 's/\//\\/')" "$DIR/etc/pacman.conf"
+sed -i "s#<package-url>#$URL#g" "$DIR/etc/pacman.conf"
 
 # Setup Hostname
 echo "$HOST" > "$DIR/etc/hostname"
@@ -220,10 +220,21 @@ echo "su -l -c \"git clone https://github.com/uiuc-cs225/config /home/$USER/.con
 echo "su -l -c \"/home/$USER/.conf/install\" $USER" >> "$DIR/setup"
 echo "chmod -R +x /home/$USER/Desktop" >> "$DIR/setup"
 
+# Also pull the packages for the classes
+echo "PKGS=\"\$(find /home/$USER/.conf/ -name packages -exec cat {}\; | sed 's/\n/ /g')\"" >> "$DIR/setup"
+echo "pacman -Syw --cachedir /cache --noconfirm \$PKGS" >> "$DIR/setup"
+mkdir "$DIR/cache"
+mkdir "${2}.pkgs"
+mount --bind "${2}.pkgs" "$DIR/cache"
+
 # Run the Setup Script
 arch-chroot "$DIR" "/bin/sh" "/setup" >>$OUT 2>&1
 shred "$DIR/setup"
 rm -f "$DIR/setup"
+
+# Finalize dependant packages
+umount "$DIR/cache"
+rmdir "$DIR/cache"
 
 # Unmount and finalize QCow Image
 echo "Unmounting and Syncing Partitions"
@@ -252,8 +263,6 @@ vboxmanage unregistervm "{8968673b-95a0-4875-8929-340a50a00a22}" >/dev/null 2>&1
 vboxmanage registervm "$VBOX" >>$OUT 2>&1
 vboxmanage storageattach "{8968673b-95a0-4875-8929-340a50a00a22}" --storagectl "SATA Controller" --port 0 --type hdd --medium "$(pwd)/$DISK2" >>$OUT 2>&1
 vboxmanage export "{8968673b-95a0-4875-8929-340a50a00a22}" --output "$(pwd)/$2.ova" --vsys 0 --product "UIUC VM" --producturl "https://wiki.engr.illinois.edu/display/cs225/Virtual+Machine" --vendor "CS 225 Course Staff" --vendorurl "https://wiki.engr.illinois.edu/display/cs225/Home" --version "1.0" >>$OUT 2>&1
-
-# Also pull the packages for the classes
 
 # Cleanup
 cleanup 0
