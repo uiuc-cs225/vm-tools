@@ -224,7 +224,7 @@ echo "chmod -R +x /home/$USER/Desktop" >> "$DIR/setup"
 
 # Also pull the packages for the classes
 echo "PKGS=\"\$(find /home/$USER/.conf/ -name \\*packages\\* -exec cat {} \;)\"" >> "$DIR/setup"
-echo "pacman -Syw --config /cache/tmp/pacman.conf --cachedir /cache --noconfirm \$(echo \$PKGS | sed 's/\\\n/ /g')" >> "$DIR/setup"
+echo "pacman -Syw --arch \"$ARCH\" --config /cache/tmp/pacman.conf --cachedir /cache --noconfirm \$(echo \$PKGS | sed 's/\\\n/ /g')" >> "$DIR/setup"
 mkdir "$DIR/cache"
 PKGS="${2}.pkgs"
 rm -rf "$PKGS"
