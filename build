@@ -65,6 +65,8 @@ cleanup() {
 	eval 'rm -f "$DISK"'
 	eval 'rm -f "$DISK2"'
 	eval 'rm -rf "$DIR"'
+    [ "$1" -ne "0" ] && eval 'rm -rf "$PKGS"'
+    [ "$1" -ne "0" ] && eval 'rm -f "$2.ova"'
 	exit $1
 }
 trap 'cleanup 1' INT QUIT
@@ -221,11 +223,15 @@ echo "su -l -c \"/home/$USER/.conf/install\" $USER" >> "$DIR/setup"
 echo "chmod -R +x /home/$USER/Desktop" >> "$DIR/setup"
 
 # Also pull the packages for the classes
-echo "PKGS=\"\$(find /home/$USER/.conf/ -name packages -exec cat {}\; | sed 's/\n/ /g')\"" >> "$DIR/setup"
-echo "pacman -Syw --cachedir /cache --noconfirm \$PKGS" >> "$DIR/setup"
+echo "PKGS=\"\$(find /home/$USER/.conf/ -name \\*packages\\* -exec cat {} \;)\"" >> "$DIR/setup"
+echo "pacman -Syw --config /cache/tmp/pacman.conf --cachedir /cache --noconfirm \$(echo \$PKGS | sed 's/\\\n/ /g')" >> "$DIR/setup"
 mkdir "$DIR/cache"
-mkdir "${2}.pkgs"
-mount --bind "${2}.pkgs" "$DIR/cache"
+PKGS="${2}.pkgs"
+rm -rf "$PKGS"
+mkdir "$PKGS"
+mount --bind "$PKGS" "$DIR/cache"
+mkdir "$DIR/cache/tmp"
+cp "$CONF/pacman.conf" "$DIR/cache/tmp"
 
 # Run the Setup Script
 arch-chroot "$DIR" "/bin/sh" "/setup" >>$OUT 2>&1
@@ -233,6 +239,8 @@ shred "$DIR/setup"
 rm -f "$DIR/setup"
 
 # Finalize dependant packages
+rm -rf "$DIR/cache/tmp"
+repo-add "$DIR/cache/uiuc-vm.db.tar.gz" "$DIR/cache/"*.tar.xz >> "$OUT" 2>&1
 umount "$DIR/cache"
 rmdir "$DIR/cache"
 
