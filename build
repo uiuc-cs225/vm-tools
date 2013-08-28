@@ -2,17 +2,21 @@
 USER="dev"
 NAME="UIUC Dev"
 HOST="uiuc-vm"
+URL="https://uiuc-vm.wkennington.com/pkgs"
 
 # Usage
 if [ "$#" -lt "2" ]; then
-	echo "Usage: $0 arch outfile [debug-file]"
+	echo "Usage: $0 arch outfile [pkg-url] [debug-file]"
 	exit 1
 fi
 
+# Update URL
+[ "$#" -ge "3" ] && URL="$3"
+
 # Turn on Debug Messages
 OUT="/dev/null"
-if [ "$#" -ge "3" ]; then
-	OUT="$3"
+if [ "$#" -ge "4" ]; then
+	OUT="$4"
 	echo -n "" > "$OUT"
 fi
 
@@ -170,6 +174,9 @@ error "Failed to install pacman packages onto new root"
 echo "Configuring System"
 cp -r "$CONF/etc" "$DIR" 2>/dev/null
 cp -r "$CONF/home" "$DIR/home/$USER" 2>/dev/null
+
+# Update pacman.conf
+sed -i "s/<package-url>/$(echo "$URL" | sed 's/\//\\/')" "$DIR/etc/pacman.conf"
 
 # Setup Hostname
 echo "$HOST" > "$DIR/etc/hostname"
