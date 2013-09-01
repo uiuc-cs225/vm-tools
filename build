@@ -164,7 +164,7 @@ BASE="bash bzip2 coreutils cronie dhcpcd diffutils e2fsprogs file filesystem fin
 DEVEL="base-devel libpng gnuplot imagemagick graphviz gdb valgrind"
 EDITORS="gvim emacs gedit"
 NET="wget ntp subversion git ifplugd iptables"
-SYS="sudo openssh lzop syslinux zsh mlocate sshpass"
+SYS="sudo openssh lzop syslinux zsh mlocate sshpass unzip"
 X11="xfce4 xfce4-goodies slim epdfview chromium firefox xorg-server xorg-xinit virtualbox-guest-modules virtualbox-guest-utils xf86-input-mouse xf86-input-keyboard gnome-themes-standard ttf-dejavu ttf-liberation"
 
 # Run Pacman to Install Packages
